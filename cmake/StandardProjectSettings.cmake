@@ -5,12 +5,9 @@ set(default_build_type "Release")
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     message(STATUS "Setting build type to '${default_build_type}' as none was specified.")
     set(CMAKE_BUILD_TYPE "${default_build_type}" CACHE
-        STRING "Choose the type of build (Debug, Release)" FORCE)
+        STRING "Choose the type of build (Debug, Release, RelWithDebInfo)" FORCE)
 endif()
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -Wall -Wextra")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
