@@ -23,12 +23,13 @@ void poly_hash::init(const Kmer &kmer) {
     k = kmer.size();
     last_exp = pow_mod(p, k, mod);
     for (std::size_t i = 0; i < kmer.size(); i++) {
-        state = mod.reduce2(state * p + kmer.get(kmer.size() - i - 1));
+        state = mod.reduce2((uint128_t)state * p +
+                            kmer.get(kmer.size() - i - 1));
     }
     state = mod.reduce(state);
 }
 void poly_hash::roll(Nucleotide n_in, Nucleotide n_out) {
-    state = mod.reduce2(state * p + n_in);
+    state = mod.reduce2((uint128_t)state * p + n_in);
     auto last = mod.reduce2(n_out * last_exp);
     state = mod.reduce2(2 * mod.get_mod() + state - last);
     state = mod.reduce(state);
@@ -40,10 +41,14 @@ constexpr std::uint64_t primes[] = {31, 37, 41, 43, 47, 53, 59, 61, 67, 71};
 //         1000000000000099739, 1000000000000099759, 1000000000000099853,
 //         1000000000000099873, 1000000000000099907, 1000000000000099909,
 //         1000000000000099937, 1000000000000099957, 1000000000000099961};
-constexpr std::uint64_t mods[] = {
-        1000000007, 1000000009, 1000000021, 1000000033, 1000000087, 1000000093,
-        1000000097, 1000000103, 1000000123, 1000000181, 1000000207, 1000000223,
-        1000000241, 1000000271, 1000000289, 1000000297};
+constexpr std::uint64_t mods[] = {1099511627781, 1099511627789, 1099511627793,
+                                  1099511627799, 1099511627807, 1099511627811,
+                                  1099511627819, 1099511627823, 1099511627829,
+                                  1099511627843};
+// constexpr std::uint64_t mods[] = {
+// 1000000007, 1000000009, 1000000021, 1000000033, 1000000087, 1000000093,
+// 1000000097, 1000000103, 1000000123, 1000000181, 1000000207, 1000000223,
+// 1000000241, 1000000271, 1000000289, 1000000297};
 
 poly_hash_family::poly_hash_family(std::size_t nhashes, std::size_t k)
     : rolling_hash_family(nhashes), kmer(k) {
