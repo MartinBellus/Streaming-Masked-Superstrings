@@ -29,7 +29,8 @@ void poly_hash::init(const Kmer &kmer) {
 }
 void poly_hash::roll(Nucleotide n_in, Nucleotide n_out) {
     state = mod.reduce2(state * p + n_in);
-    state = mod.reduce2(mod.get_mod() + state - n_out * last_exp);
+    auto last = mod.reduce2(n_out * last_exp);
+    state = mod.reduce2(2 * mod.get_mod() + state - last);
     state = mod.reduce(state);
 }
 
