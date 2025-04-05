@@ -2,28 +2,21 @@
 #define STD_HASH_HPP
 
 #include "hash_family.hpp"
-#include <cstdint>
 #include <string>
-#include <vector>
 
-class std_hash_family : public hash_family_tag {
+class std_hash_family : public hash_family {
   public:
-    std_hash_family(std::size_t nhashes) : nhashes(nhashes) {}
-    std::vector<std::uint64_t> operator()(const std::string &key) const {
-        std::vector<std::uint64_t> hashes;
-        hashes.reserve(nhashes);
+    std_hash_family(std::size_t nhashes) : hash_family(nhashes) {}
+    std::span<const hash_t> hash_impl(const std::string &key) const {
         auto h = std::hash<std::string>();
         auto x = h(key);
         auto y = h(key + '0');
 
         for (std::size_t i = 0; i < nhashes; i++) {
-            hashes.push_back((x + i * y));
+            buffer[i] = x + i * y;
         }
-        return hashes;
+        return std::span(buffer.get(), nhashes);
     }
-
-  private:
-    std::size_t nhashes;
 };
 
 #endif
