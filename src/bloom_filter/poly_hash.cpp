@@ -1,6 +1,8 @@
 #include "bloom_filter/poly_hash.hpp"
 #include "helper/kmer.hpp"
 
+constexpr std::uint64_t NVALUE[] = {1, 2, 3, 4};
+
 std::uint64_t pow_mod(std::uint64_t a, std::uint64_t b, const Modulus &mod) {
     std::uint64_t result = 1;
     while (b) {
@@ -23,14 +25,14 @@ void poly_hash::init(const Kmer &kmer) {
     k = kmer.size();
     last_exp = pow_mod(p, k, mod);
     for (std::size_t i = 0; i < kmer.size(); i++) {
-        state = mod.reduce2((uint128_t)state * p +
-                            kmer.get(kmer.size() - i - 1));
+        auto nucleotide = kmer.get(kmer.size() - i - 1);
+        state = mod.reduce2((uint128_t)state * p + NVALUE[nucleotide]);
     }
     state = mod.reduce(state);
 }
 void poly_hash::roll(Nucleotide n_in, Nucleotide n_out) {
-    state = mod.reduce2((uint128_t)state * p + n_in);
-    auto last = mod.reduce2(n_out * last_exp);
+    state = mod.reduce2((uint128_t)state * p + NVALUE[n_in]);
+    auto last = mod.reduce2(NVALUE[n_out] * last_exp);
     state = mod.reduce2(2 * mod.get_mod() + state - last);
     state = mod.reduce(state);
 }
@@ -45,41 +47,34 @@ constexpr std::uint64_t mods[] = {1099511627781, 1099511627789, 1099511627793,
                                   1099511627799, 1099511627807, 1099511627811,
                                   1099511627819, 1099511627823, 1099511627829,
                                   1099511627843};
-// constexpr std::uint64_t mods[] = {
-// 1000000007, 1000000009, 1000000021, 1000000033, 1000000087, 1000000093,
-// 1000000097, 1000000103, 1000000123, 1000000181, 1000000207, 1000000223,
-// 1000000241, 1000000271, 1000000289, 1000000297};
 
 poly_hash_family::poly_hash_family(std::size_t nhashes, std::size_t k)
-    : rolling_hash_family(nhashes), kmer(k) {
-    hash_fn.reserve(nhashes);
-    for (std::size_t i = 0; i < nhashes; i++) {
-        hash_fn.emplace_back(primes[i], mods[i], kmer.size());
-    }
-}
+    : rolling_hash_family(nhashes), kmer(k), xhash(primes[0], mods[0], k),
+      yhash(primes[1], mods[1], k) {}
 
 poly_hash_family::poly_hash_family(std::size_t nhashes)
-    : rolling_hash_family(nhashes), kmer(0) {
-    hash_fn.reserve(nhashes);
-    for (std::size_t i = 0; i < nhashes; i++) {
-        hash_fn.emplace_back(primes[i], mods[i], kmer.size());
-    }
-}
+    : poly_hash_family(nhashes, 0) {}
 
 void poly_hash_family::roll_impl(char c) {
     Nucleotide n_in = char_to_nucleotide(c);
     Nucleotide n_out = kmer.get(kmer.size() - 1);
     kmer.roll(c);
-    for (std::size_t i = 0; i < hash_fn.size(); i++) {
-        hash_fn[i].roll(n_in, n_out);
-        buffer[i] = hash_fn[i].get_hash();
+    xhash.roll(n_in, n_out);
+    yhash.roll(n_in, n_out);
+    auto x = xhash.get_hash();
+    auto y = yhash.get_hash();
+    for (std::size_t i = 0; i < nhashes; i++) {
+        buffer[i] = x + i * y;
     }
 }
 
 void poly_hash_family::init_impl(const std::string &s) {
     kmer = Kmer(s);
-    for (std::size_t i = 0; i < hash_fn.size(); i++) {
-        hash_fn[i].init(kmer);
-        buffer[i] = hash_fn[i].get_hash();
+    xhash.init(kmer);
+    yhash.init(kmer);
+    auto x = xhash.get_hash();
+    auto y = yhash.get_hash();
+    for (std::size_t i = 0; i < nhashes; i++) {
+        buffer[i] = x + i * y;
     }
 }

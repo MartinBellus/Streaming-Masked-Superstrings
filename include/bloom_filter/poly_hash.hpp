@@ -6,7 +6,6 @@
 #include "math/modular.hpp"
 #include <cstdint>
 #include <string>
-#include <vector>
 
 class poly_hash {
   public:
@@ -33,7 +32,7 @@ class poly_hash_family : public rolling_hash_family {
     void init_impl(const std::string &s);
 
   private:
-    std::vector<poly_hash> hash_fn;
+    poly_hash xhash, yhash;
     Kmer kmer;
 };
 
