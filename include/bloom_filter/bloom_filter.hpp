@@ -2,13 +2,13 @@
 #define BLOOM_FILTER_HPP
 
 #include "hash_family.hpp"
-#include <bitset>
+#include "helper/bitset.hpp"
 #include <string>
 
 template <std::size_t S, HashFamily H>
 class BloomFilter {
   public:
-    BloomFilter(std::size_t nhashes) : hash_family(nhashes) {}
+    BloomFilter(std::size_t nhashes) : hash_family(nhashes), data(S) {}
     void insert(const std::string &key) {
         for (auto &&h : hash_family.hash(key)) {
             data.set((h % S));
@@ -23,7 +23,7 @@ class BloomFilter {
     }
 
   private:
-    std::bitset<S> data;
+    DynamicBitset data;
     mutable H hash_family;
 };
 
@@ -31,7 +31,7 @@ template <std::size_t S, RollingHashFamily H>
 class RollingBloomFilter {
   public:
     RollingBloomFilter(std::size_t nhashes, std::size_t k)
-        : hash_family(nhashes, k) {}
+        : hash_family(nhashes, k), data(S) {}
     void init(const std::string &key) { hash_family.init(key); }
     void roll(char c) { hash_family.roll(c); }
     void insert_this() {
@@ -55,7 +55,7 @@ class RollingBloomFilter {
     }
 
   private:
-    std::bitset<S> data;
+    DynamicBitset data;
     H hash_family;
 };
 
