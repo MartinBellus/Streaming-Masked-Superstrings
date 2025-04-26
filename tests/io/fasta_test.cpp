@@ -1,10 +1,12 @@
 #include "io/fasta.hpp"
-#include <fstream>
+#include "io/streams.hpp"
 #include <iostream>
 
+using namespace io;
+
 int readfile(const std::string &name) {
-    std::ifstream file(name);
-    if (!file) {
+    io::input_stream file(name);
+    if (!file.is_open()) {
         std::cerr << "Error opening file: " << name << std::endl;
         return 1;
     }

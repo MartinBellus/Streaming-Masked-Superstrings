@@ -11,3 +11,5 @@ endif()
 include_directories(${CMAKE_SOURCE_DIR}/include)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(MAIN streaming-masked-superstrings)

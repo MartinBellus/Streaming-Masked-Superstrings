@@ -56,6 +56,7 @@ class Kmer {
         }
         return static_cast<Nucleotide>((data >> (i * 2)) & 0b11);
     }
+    Nucleotide last() const { return get(K - 1); }
     std::size_t size() const { return K; }
     void reset() { data = 0; }
 
