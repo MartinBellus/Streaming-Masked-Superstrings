@@ -1,4 +1,4 @@
-#include "helper/fasta.hpp"
+#include "io/fasta.hpp"
 #include <fstream>
 #include <iostream>
 
