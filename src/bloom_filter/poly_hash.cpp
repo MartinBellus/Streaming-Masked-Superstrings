@@ -37,6 +37,8 @@ void poly_hash::roll(Nucleotide n_in, Nucleotide n_out) {
     state = mod.reduce(state);
 }
 
+void poly_hash::reset() { state = 0; }
+
 constexpr std::uint64_t primes[] = {31, 37, 41, 43, 47, 53, 59, 61, 67, 71};
 // constexpr std::uint64_t mods[] = {
 //         1000000000000099669, 1000000000000099729, 1000000000000099733,
@@ -77,4 +79,10 @@ void poly_hash_family::init_impl(const std::string &s) {
     for (std::size_t i = 0; i < nhashes; i++) {
         buffer[i] = x + i * y;
     }
+}
+
+void poly_hash_family::reset_impl() {
+    xhash.reset();
+    yhash.reset();
+    kmer.reset();
 }

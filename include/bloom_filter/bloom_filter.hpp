@@ -36,6 +36,7 @@ class RollingBloomFilter {
     RollingBloomFilter(std::size_t size, std::size_t nhashes, std::size_t k)
         : _size(size), hash_family(nhashes, k), data(size) {}
     void init(const std::string &key) { hash_family.init(key); }
+    void reset_hash_family() { hash_family.reset(); }
     void roll(char c) { hash_family.roll(c); }
     void insert_this() {
         for (auto &&h : hash_family.get_hashes()) {

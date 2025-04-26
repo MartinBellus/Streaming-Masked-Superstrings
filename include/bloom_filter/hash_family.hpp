@@ -25,6 +25,7 @@ class rolling_hash_family : public hash_family {
     rolling_hash_family(std::size_t nhashes) : hash_family(nhashes) {}
     void roll(this auto &&self, char c) { self.roll_impl(c); }
     void init(this auto &&self, const std::string &s) { self.init_impl(s); }
+    void reset(this auto &&self) { self.reset_impl(); }
     std::span<const hash_t> hash_impl(this auto &&self, const std::string &s) {
         self.init(s);
         return self.get_hashes();
@@ -48,9 +49,7 @@ concept RollingHashFamily =
             {
                 t.init_impl(std::declval<std::string &>())
             } -> std::same_as<void>;
-            {
-                t.get_hashes()
-            } -> std::same_as<std::span<const typename T::hash_t>>;
+            { t.reset_impl() } -> std::same_as<void>;
         };
 
 #endif

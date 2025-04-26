@@ -17,6 +17,7 @@ class poly_hash {
     std::uint64_t get_hash() const { return state; };
     void roll(Nucleotide n_in, Nucleotide n_out);
     void init(const Kmer &kmer);
+    void reset();
 
   private:
     std::uint64_t p, state, last_exp;
@@ -30,6 +31,7 @@ class poly_hash_family : public rolling_hash_family {
     poly_hash_family(std::size_t nhashes);
     void roll_impl(char c);
     void init_impl(const std::string &s);
+    void reset_impl();
 
   private:
     poly_hash xhash, yhash;
