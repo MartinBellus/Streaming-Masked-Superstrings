@@ -73,18 +73,18 @@ void roll_benchmark(size_t len, size_t k, const string &name) {
 }
 
 template <class T>
-T create(std::size_t len, std::size_t k) {
+T create(std::size_t size, std::size_t nhashes) {
     if constexpr (std::is_same_v<T, std::unordered_set<std::string>>) {
         return T();
     } else {
-        return T(10 * len, 7);
+        return T(size, nhashes);
     }
 }
 
 template <class T>
 void benchmark(size_t len, size_t k, const string &name) {
     cout << endl << "Benchmarking " << name << endl;
-    T bf = create<T>(10 * len, k);
+    T bf = create<T>(10 * len, 7);
     unordered_set<string> strings;
     for (size_t i = 0; i < len; i++) {
         strings.insert(rand_seq(k));
