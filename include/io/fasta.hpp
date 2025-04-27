@@ -29,6 +29,10 @@ class FastaReader {
         return stream.get(next);
     }
     const std::string &get_header() const { return header; }
+    void reset() {
+        stream.reset();
+        header.clear();
+    }
 
   private:
     void skip_ws() {

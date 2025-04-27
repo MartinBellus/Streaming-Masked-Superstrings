@@ -16,6 +16,7 @@ class input_stream {
     bool getline(std::string &);
     bool get(char &);
     void ignore();
+    void reset();
 
   private:
     std::ifstream stream;

@@ -14,4 +14,9 @@ bool input_stream::get(char &c) { return stream.get(c).good(); }
 
 void input_stream::ignore() { stream.ignore(); }
 
+void input_stream::reset() {
+    stream.clear();
+    stream.seekg(0, std::ios::beg);
+}
+
 void output_stream::write(char c) { stream.put(c); }
