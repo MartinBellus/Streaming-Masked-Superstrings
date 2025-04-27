@@ -9,6 +9,7 @@
 
 class poly_hash {
   public:
+    poly_hash(std::size_t k);
     poly_hash(std::uint64_t p, std::uint64_t mod, std::size_t k);
     poly_hash(std::uint64_t p, std::uint64_t mod, const Kmer &kmer)
         : p(p), mod(mod) {

@@ -13,13 +13,12 @@ int compute_superstring(std::size_t K, std::size_t approx_set_size,
         std::size_t read = 0;
         char c;
         filter.reset_hash_family();
+        for (std::size_t i = 0; i < K && in.next_nucleotide(c); i++) {
+            filter.roll(c);
+            out.add_nucleotide(c);
+        }
         while (in.next_nucleotide(c)) {
             filter.roll(c);
-            read++;
-            if (read < K) {
-                out.add_nucleotide(c);
-                continue;
-            }
             bool first_occurence = !filter.contains_this();
             if (first_occurence) {
                 filter.insert_this();

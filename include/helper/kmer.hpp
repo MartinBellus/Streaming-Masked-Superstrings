@@ -59,6 +59,9 @@ class Kmer {
     Nucleotide last() const { return get(K - 1); }
     std::size_t size() const { return K; }
     void reset() { data = 0; }
+    bool operator==(const Kmer &other) const {
+        return data == other.data && K == other.K;
+    }
 
   private:
     std::size_t K;

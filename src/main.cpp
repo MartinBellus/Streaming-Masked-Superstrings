@@ -1,3 +1,4 @@
+#include "algorithm/exact.hpp"
 #include "algorithm/first_phase.hpp"
 #include "bloom_filter/bloom_filter.hpp"
 #include "bloom_filter/poly_hash.hpp"
@@ -8,14 +9,27 @@ using namespace io;
 using rolling_bf = RollingBloomFilter<poly_hash_family>;
 constexpr std::size_t K = 31;
 
+int usage() {
+    std::cerr << "Usage: superstring [--exact] <fasta-input> <output>"
+              << std::endl;
+    return 1;
+}
+
 int main(int argc, char *argv[]) {
-    if (argc != 3) {
-        std::cerr << "Usage " << argv[0] << " <fasta-input> <output>"
-                  << std::endl;
-        return 1;
+    if (argc < 3) {
+        return usage();
+    }
+    if (argc == 4) {
+        if (std::string(argv[1]) == "--exact") {
+            FastaReader in(argv[2]);
+            KmerWriter out(argv[3], K);
+            return exact::compute_superstring(K, in, out);
+        } else {
+            return usage();
+        }
     }
     FastaReader in(argv[1]);
     KmerWriter out(argv[2], K);
-    return first_phase::compute_superstring<rolling_bf>(K, (std::size_t)2e6, in,
-                                                        out);
+    return first_phase::compute_superstring<rolling_bf>(K, (std::size_t)2.3e6,
+                                                        in, out);
 }
