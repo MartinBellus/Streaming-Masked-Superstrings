@@ -14,6 +14,7 @@ class Modulus {
 
   private:
     std::uint64_t mod, magic;
+    std::uint8_t exp;
 };
 
 #endif
