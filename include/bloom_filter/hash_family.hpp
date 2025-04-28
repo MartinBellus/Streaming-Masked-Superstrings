@@ -1,13 +1,14 @@
 #ifndef HASH_FAMILY_HPP
 #define HASH_FAMILY_HPP
 
+#include "helper/kmer.hpp"
 #include <memory>
 
 class hash_family {
   public:
     using hash_t = std::uint64_t;
-    std::span<const hash_t> hash(this auto &&self, const std::string &s) {
-        return self.hash_impl(s);
+    std::span<const hash_t> hash(this auto &&self, const Kmer &kmer) {
+        return self.hash_impl(kmer);
     }
     hash_family(std::size_t nhashes) : nhashes(nhashes) {
         buffer = std::make_unique<hash_t[]>(nhashes);
@@ -24,10 +25,10 @@ class rolling_hash_family : public hash_family {
 
     rolling_hash_family(std::size_t nhashes) : hash_family(nhashes) {}
     void roll(this auto &&self, char c) { self.roll_impl(c); }
-    void init(this auto &&self, const std::string &s) { self.init_impl(s); }
+    void init(this auto &&self, const Kmer &kmer) { self.init_impl(kmer); }
     void reset(this auto &&self) { self.reset_impl(); }
-    std::span<const hash_t> hash_impl(this auto &&self, const std::string &s) {
-        self.init(s);
+    std::span<const hash_t> hash_impl(this auto &&self, const Kmer &kmer) {
+        self.init(kmer);
         return self.get_hashes();
     }
     std::span<const hash_t> get_hashes() const {
@@ -38,7 +39,7 @@ class rolling_hash_family : public hash_family {
 template <class T>
 concept HashFamily = std::derived_from<T, hash_family> && requires(T t) {
     {
-        t.hash_impl(std::declval<std::string &>())
+        t.hash_impl(std::declval<const Kmer &>())
     } -> std::same_as<std::span<const typename T::hash_t>>;
 };
 
@@ -46,9 +47,7 @@ template <class T>
 concept RollingHashFamily =
         std::derived_from<T, rolling_hash_family> && requires(T t) {
             { t.roll_impl(std::declval<char>()) } -> std::same_as<void>;
-            {
-                t.init_impl(std::declval<std::string &>())
-            } -> std::same_as<void>;
+            { t.init_impl(std::declval<const Kmer &>()) } -> std::same_as<void>;
             { t.reset_impl() } -> std::same_as<void>;
         };
 

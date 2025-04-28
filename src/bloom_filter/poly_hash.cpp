@@ -75,8 +75,8 @@ void poly_hash_family::roll_impl(char c) {
     }
 }
 
-void poly_hash_family::init_impl(const std::string &s) {
-    kmer = Kmer(s);
+void poly_hash_family::init_impl(const Kmer &key) {
+    kmer = key;
     xhash.init(kmer);
     yhash.init(kmer);
     auto x = xhash.get_hash();

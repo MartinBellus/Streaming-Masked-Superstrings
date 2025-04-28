@@ -27,7 +27,7 @@ void roll_benchmark(size_t len, size_t k, const string &name) {
         strings.insert(s.substr(i, k));
     }
     auto insert_start = chrono::high_resolution_clock::now();
-    bf.init(s.substr(0, k));
+    bf.init(Kmer(s.substr(0, k)));
     bf.insert_this();
     for (size_t i = k; i < s.size(); i++) {
         bf.roll(s[i]);
@@ -45,12 +45,12 @@ void roll_benchmark(size_t len, size_t k, const string &name) {
 
     auto query_start = chrono::high_resolution_clock::now();
     for (auto &&s : strings) {
-        if (!bf.contains(s)) {
+        if (!bf.contains(Kmer(s))) {
             throw runtime_error("Filter " + name + " does not contain " + s);
         }
     }
     for (size_t i = 0; i < len; i++) {
-        if (bf.contains(queries[i]) != anss[i]) {
+        if (bf.contains(Kmer(queries[i])) != anss[i]) {
             false_positives++;
         }
     }
@@ -72,9 +72,12 @@ void roll_benchmark(size_t len, size_t k, const string &name) {
          << " ns" << endl;
 }
 
+template <typename T>
+concept is_unordered_set = std::is_same_v<T, std::unordered_set<std::string>>;
+
 template <class T>
 T create(std::size_t size, std::size_t nhashes) {
-    if constexpr (std::is_same_v<T, std::unordered_set<std::string>>) {
+    if constexpr (is_unordered_set<T>) {
         return T();
     } else {
         return T(size, nhashes);
@@ -83,6 +86,8 @@ T create(std::size_t size, std::size_t nhashes) {
 
 template <class T>
 void benchmark(size_t len, size_t k, const string &name) {
+    using key = std::conditional_t<is_unordered_set<T>, std::string, Kmer>;
+
     cout << endl << "Benchmarking " << name << endl;
     T bf = create<T>(10 * len, 7);
     unordered_set<string> strings;
@@ -91,7 +96,7 @@ void benchmark(size_t len, size_t k, const string &name) {
     }
     auto insert_start = chrono::high_resolution_clock::now();
     for (auto &&s : strings) {
-        bf.insert(s);
+        bf.insert(key(s));
     }
     auto insert_end = chrono::high_resolution_clock::now();
 
@@ -105,12 +110,13 @@ void benchmark(size_t len, size_t k, const string &name) {
 
     auto query_start = chrono::high_resolution_clock::now();
     for (auto &&s : strings) {
-        if (!bf.contains(s)) {
+        if (!bf.contains(key(s))) {
             throw runtime_error("Filter " + name + " does not contain " + s);
         }
     }
     for (size_t i = 0; i < len; i++) {
-        if (bf.contains(queries[i]) != anss[i]) {
+        bool res;
+        if (bf.contains(key(queries[i])) != anss[i]) {
             false_positives++;
         }
     }
