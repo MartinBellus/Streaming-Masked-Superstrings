@@ -1,6 +1,6 @@
-#include "bloom_filter/bloom_filter.hpp"
-#include "bloom_filter/poly_hash.hpp"
-#include "bloom_filter/std_hash.hpp"
+#include "hash/poly_hash.hpp"
+#include "hash/std_hash.hpp"
+#include "sketch/bloom_filter.hpp"
 #include <chrono>
 #include <iostream>
 #include <unordered_set>

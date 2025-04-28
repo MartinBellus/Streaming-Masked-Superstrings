@@ -1,4 +1,4 @@
-#include "bloom_filter/poly_hash.hpp"
+#include "hash/poly_hash.hpp"
 #include "helper/kmer.hpp"
 
 constexpr std::uint64_t NVALUE[] = {1, 2, 3, 4};

@@ -1,8 +1,8 @@
 #include "algorithm/exact.hpp"
 #include "algorithm/first_phase.hpp"
-#include "bloom_filter/bloom_filter.hpp"
-#include "bloom_filter/poly_hash.hpp"
+#include "hash/poly_hash.hpp"
 #include "io/fasta.hpp"
+#include "sketch/bloom_filter.hpp"
 #include <iostream>
 
 using namespace io;

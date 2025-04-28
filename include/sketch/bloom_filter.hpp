@@ -1,7 +1,7 @@
 #ifndef BLOOM_FILTER_HPP
 #define BLOOM_FILTER_HPP
 
-#include "hash_family.hpp"
+#include "hash/hash_family.hpp"
 #include "helper/bitset.hpp"
 #include "math/modular.hpp"
 

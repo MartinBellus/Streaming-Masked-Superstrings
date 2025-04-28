@@ -1,5 +1,5 @@
 #include "algorithm/exact.hpp"
-#include "bloom_filter/poly_hash.hpp"
+#include "hash/poly_hash.hpp"
 #include "helper/kmer.hpp"
 #include <unordered_set>
 
