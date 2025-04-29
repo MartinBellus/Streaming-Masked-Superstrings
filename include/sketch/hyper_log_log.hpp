@@ -9,12 +9,13 @@ template <HashFamily H, std::size_t BPB = 5, std::size_t B = 3>
 class HyperLogLog {
   private:
     using Bitset = CountingBitset<BPB>;
-    using inner_t = typename Bitset::inner_t;
-    static constexpr std::size_t inner_size = sizeof(inner_t) * 8;
+    static constexpr std::size_t buckets = (1 << B);
+    static constexpr std::size_t counter_max = (1 << BPB) - 1;
     static constexpr std::size_t index_mask = (1 << B) - 1;
+    static constexpr double alpha = 0.7213 / (1 + 1.079 / buckets);
 
   public:
-    HyperLogLog() : hash_family(1), bitset(1 << B) {}
+    HyperLogLog() : hash_family(1), bitset(buckets) {}
     void update(const Kmer &k) {
         auto hash = hash_family.hash(k)[0];
         auto index = hash & index_mask;
@@ -26,10 +27,11 @@ class HyperLogLog {
     }
     std::size_t query() const {
         std::size_t sum = 0;
-        for (std::size_t i = 0; i < bitset.size(); i++) {
-            sum += 1 << (inner_size - bitset.get(i));
+        for (std::size_t i = 0; i < buckets; i++) {
+            sum += 1 << (counter_max - bitset.get(i));
         }
-        return (1ULL << inner_size) / sum;
+        std::size_t base = static_cast<std::size_t>(alpha * buckets * buckets);
+        return (base << counter_max) / sum;
     }
 
   private:

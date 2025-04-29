@@ -12,4 +12,5 @@ add_custom_target(create_data_symlink ALL DEPENDS ${LINK_NAME})
 
 add_subdirectory(bloom_filter)
 add_subdirectory(io)
+add_subdirectory(algorithm)
 add_subdirectory(math)
