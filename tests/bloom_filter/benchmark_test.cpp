@@ -1,5 +1,5 @@
+#include "hash/murmur_hash.hpp"
 #include "hash/poly_hash.hpp"
-#include "hash/std_hash.hpp"
 #include "sketch/bloom_filter.hpp"
 #include <chrono>
 #include <iostream>
@@ -142,11 +142,11 @@ int main() {
     const size_t NUM = 1000000;
     const size_t K = 31;
     using bf1 = BloomFilter<poly_hash_family>;
-    using bf2 = BloomFilter<std_hash_family>;
+    using bf2 = BloomFilter<murmur_hash_family>;
     using rbf1 = RollingBloomFilter<poly_hash_family>;
 
     benchmark<bf1>(NUM, K, "Bloom filter, rolling hash");
-    benchmark<bf2>(NUM, K, "Bloom filter, std hash");
+    benchmark<bf2>(NUM, K, "Bloom filter, murmur hash");
     benchmark<unordered_set<string>>(NUM, K, "Unordered set");
     roll_benchmark<rbf1>(NUM, K, "Rolling bloom filter, rolling hash");
 }
