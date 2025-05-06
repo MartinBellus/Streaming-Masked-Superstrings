@@ -61,6 +61,7 @@ class Kmer {
     }
     Nucleotide last() const { return get(K - 1); }
     std::size_t size() const { return K; }
+    std::size_t available() const { return std::min(K, n_count); }
     void reset() {
         _data = 0;
         n_count = 0;

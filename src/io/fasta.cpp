@@ -15,7 +15,7 @@ void KmerWriter::print_nucleotide(int present) {
 }
 
 void KmerWriter::flush() {
-    for (int i = kmer.size() - 1; i >= 0; i--) {
+    for (int i = kmer.available() - 1; i >= 0; i--) {
         stream.write(nucleotide_to_char[kmer.get(i)]);
     }
     kmer.reset();
