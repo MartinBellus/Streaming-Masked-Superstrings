@@ -37,10 +37,31 @@ class rolling_hash_family : public hash_family {
 };
 
 template <class T>
+concept Hash = !T::rolling && requires(T t) {
+    {
+        t.hash(std::declval<const Kmer &>())
+    } -> std::same_as<typename T::hash_t>;
+    { T(std::declval<std::uint64_t>()) } -> std::same_as<T>;
+};
+
+template <class T>
 concept HashFamily = std::derived_from<T, hash_family> && requires(T t) {
     {
         t.hash_impl(std::declval<const Kmer &>())
     } -> std::same_as<std::span<const typename T::hash_t>>;
+};
+
+template <class T>
+concept RollingHash = T::rolling && requires(T t) {
+    { t.get_hash() } -> std::same_as<typename T::hash_t>;
+    {
+        t.roll(std::declval<Nucleotide>(), std::declval<Nucleotide>())
+    } -> std::same_as<void>;
+    { t.init(std::declval<const Kmer &>()) } -> std::same_as<void>;
+    { t.reset() } -> std::same_as<void>;
+    {
+        T(std::declval<std::size_t>(), std::declval<std::uint64_t>())
+    } -> std::same_as<T>;
 };
 
 template <class T>

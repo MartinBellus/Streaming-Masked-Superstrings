@@ -5,9 +5,10 @@
 
 class murmur_hash {
   public:
+    static constexpr bool rolling = false;
     using hash_t = std::uint64_t;
     murmur_hash(std::uint64_t seed) : _seed(seed) {}
-    hash_t hash(const std::string &key);
+    hash_t hash(const Kmer &key) const;
     std::uint64_t seed() const { return _seed; }
 
   private:

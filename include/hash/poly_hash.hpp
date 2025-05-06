@@ -8,13 +8,15 @@
 
 class poly_hash {
   public:
-    poly_hash(std::size_t k);
+    static constexpr bool rolling = true;
+    using hash_t = std::uint64_t;
+    poly_hash(std::size_t k, std::uint64_t seed);
     poly_hash(std::uint64_t p, std::uint64_t mod, std::size_t k);
     poly_hash(std::uint64_t p, std::uint64_t mod, const Kmer &kmer)
         : p(p), mod(mod) {
         init(kmer);
     }
-    std::uint64_t get_hash() const { return state; };
+    hash_t get_hash() const { return state; };
     void roll(Nucleotide n_in, Nucleotide n_out);
     void init(const Kmer &kmer);
     void reset();

@@ -4,11 +4,23 @@ constexpr std::uint64_t m = 0xc6a4a7935bd1e995ULL;
 constexpr std::uint32_t r = 47;
 constexpr std::uint64_t mask = 0xff;
 
-std::uint64_t murmur_hash::hash(const std::string &key) {
-    auto len = key.size();
+constexpr char nucleotide_to_char[] = {'a', 'c', 'g', 't', 'X'};
+
+std::string kmer_to_string(const Kmer &kmer) {
+    std::string s;
+    s.reserve(kmer.size());
+    for (std::size_t i = 0; i < kmer.size(); i++) {
+        s.push_back(nucleotide_to_char[kmer.get(i)]);
+    }
+    return s;
+}
+
+murmur_hash::hash_t murmur_hash::hash(const Kmer &key) const {
+    auto key_str = kmer_to_string(key);
+    auto len = key_str.size();
     hash_t h = _seed ^ (len * m);
 
-    const uint64_t *data = (const uint64_t *)key.data();
+    const uint64_t *data = (const uint64_t *)key_str.data();
     const uint64_t *end = data + (len / 8);
 
     while (data != end) {
@@ -49,25 +61,13 @@ std::uint64_t murmur_hash::hash(const std::string &key) {
     return h;
 }
 
-constexpr char nucleotide_to_char[] = {'a', 'c', 'g', 't', 'X'};
-
-std::string kmer_to_string(const Kmer &kmer) {
-    std::string s;
-    s.reserve(kmer.size());
-    for (std::size_t i = 0; i < kmer.size(); i++) {
-        s.push_back(nucleotide_to_char[kmer.get(i)]);
-    }
-    return s;
-}
-
 murmur_hash_family::murmur_hash_family(std::size_t nhashes)
     : hash_family(nhashes), xhash(0x1234), yhash(0x5678) {}
 
 std::span<const murmur_hash_family::hash_t>
 murmur_hash_family::hash_impl(const Kmer &kmer) {
-    auto key = kmer_to_string(kmer);
-    auto x = xhash.hash(key);
-    auto y = yhash.hash(key);
+    auto x = xhash.hash(kmer);
+    auto y = yhash.hash(kmer);
     for (std::size_t i = 0; i < nhashes; i++) {
         buffer[i] = x + i * y;
     }
