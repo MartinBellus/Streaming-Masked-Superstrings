@@ -19,7 +19,7 @@ class HyperLogLog {
     void update(const Kmer &k) {
         auto hash = hash_family.hash(k)[0];
         auto index = hash & index_mask;
-        auto zeros = std::countl_zero(hash);
+        auto zeros = std::countl_zero(hash) + 1;
 
         if (bitset.get(index) < zeros) {
             bitset.set(index, zeros);

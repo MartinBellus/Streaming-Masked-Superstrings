@@ -27,9 +27,9 @@ std::size_t exact_count(io::FastaReader &in, std::size_t K) {
 template <typename H>
 void hll_test(const std::string &path, std::size_t K) {
     io::FastaReader in(path);
-    auto count = approximate_count<H>(in, K);
+    std::int64_t count = approximate_count<H>(in, K);
     in.reset();
-    auto count_real = exact_count(in, K);
+    std::int64_t count_real = exact_count(in, K);
 
     std::cout << "Approximate count: \t" << count << "\n";
     std::cout << "Exact count: \t\t" << count_real << "\n";
