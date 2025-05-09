@@ -5,6 +5,34 @@
 
 using namespace exact;
 
+std::ostream &operator<<(std::ostream &os, const Accuracy &acc) {
+    double missing_percent = (double)acc.missing_kmers / acc.length * 100;
+    double additional_percent = (double)acc.additional_kmers / acc.length * 100;
+    os << "Missing kmers: " << acc.missing_kmers << " / " << acc.length << " ("
+       << missing_percent << "%)\n"
+       << "Additional kmers: " << acc.additional_kmers << " / " << acc.length
+       << " (" << additional_percent << "%)\n";
+    return os;
+}
+
+Accuracy exact::compute_accuracy(io::FastaReader &output,
+                                 io::FastaReader &golden_output) {
+    Accuracy result;
+    char out_c, golden_c;
+    while (output.next_nucleotide(out_c) &&
+           golden_output.next_nucleotide(golden_c)) {
+        bool out = std::isupper(out_c);
+        bool golden = std::isupper(golden_c);
+        if (out && !golden) {
+            result.additional_kmers++;
+        } else if (!out && golden) {
+            result.missing_kmers++;
+        }
+        result.length++;
+    }
+    return result;
+}
+
 int exact::compute_superstring(std::size_t K, io::FastaReader &in,
                                io::KmerWriter &out) {
     using kmer_t = HashedKmer<poly_hash>;
