@@ -5,7 +5,7 @@
 #include "helper/counting_bitset.hpp"
 #include "helper/kmer.hpp"
 
-template <HashFamily H, std::size_t BPB = 5, std::size_t B = 3>
+template <HashFamily H, std::size_t B = 12, std::size_t BPB = 5>
 class HyperLogLog {
   private:
     using Bitset = CountingBitset<BPB>;

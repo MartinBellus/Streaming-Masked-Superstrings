@@ -17,6 +17,8 @@ std::ostream &operator<<(std::ostream &os, const Accuracy &acc) {
 
 Accuracy exact::compute_accuracy(io::FastaReader &output,
                                  io::FastaReader &golden_output) {
+    output.reset();
+    golden_output.reset();
     Accuracy result;
     char out_c, golden_c;
     while (output.next_nucleotide(out_c) &&
@@ -36,6 +38,7 @@ Accuracy exact::compute_accuracy(io::FastaReader &output,
 int exact::compute_superstring(std::size_t K, io::FastaReader &in,
                                io::KmerWriter &out) {
     using kmer_t = HashedKmer<poly_hash>;
+    in.reset();
     std::unordered_set<kmer_t, KmerHash> kmer_set;
     kmer_t kmer(K, 0);
     char c;

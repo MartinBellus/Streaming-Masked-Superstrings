@@ -8,6 +8,7 @@ namespace first_phase {
 template <class BF>
 int compute_superstring(std::size_t K, std::size_t approx_set_size,
                         io::FastaReader &in, io::KmerWriter &out) {
+    in.reset();
     BF filter(10 * approx_set_size, 7, K);
     while (in.next_sequence()) {
         std::size_t read = 0;

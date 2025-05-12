@@ -7,6 +7,7 @@
 
 template <HashFamily H>
 std::size_t approximate_count(io::FastaReader &in, std::size_t K) {
+    in.reset();
     HyperLogLog<H> hll;
     Kmer kmer(K);
     char c;

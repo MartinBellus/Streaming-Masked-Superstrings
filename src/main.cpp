@@ -1,9 +1,12 @@
+#include "algorithm/approximate_count.hpp"
 #include "algorithm/exact.hpp"
 #include "algorithm/first_phase.hpp"
+#include "hash/murmur_hash.hpp"
 #include "hash/poly_hash.hpp"
 #include "io/fasta.hpp"
 #include "sketch/bloom_filter.hpp"
 #include <iostream>
+#include <vector>
 
 using namespace io;
 using rolling_bf = RollingBloomFilter<poly_hash_family>;
@@ -19,17 +22,24 @@ int main(int argc, char *argv[]) {
     if (argc < 3) {
         return usage();
     }
+    std::vector<std::string> args(argv, argv + argc);
     if (argc == 4) {
-        if (std::string(argv[1]) == "--exact") {
+        if (args[1] == "--exact") {
             FastaReader in(argv[2]);
             KmerWriter out(argv[3], K);
             return exact::compute_superstring(K, in, out);
+        } else if (args[1] == "--compare") {
+            FastaReader output(argv[2]);
+            FastaReader golden_output(argv[3]);
+            auto acc = exact::compute_accuracy(output, golden_output);
+            std::cout << acc;
+            return 0;
         } else {
             return usage();
         }
     }
     FastaReader in(argv[1]);
     KmerWriter out(argv[2], K);
-    return first_phase::compute_superstring<rolling_bf>(K, (std::size_t)2.3e6,
-                                                        in, out);
+    auto size = approximate_count<murmur_hash_family>(in, K);
+    return first_phase::compute_superstring<rolling_bf>(K, size, in, out);
 }
