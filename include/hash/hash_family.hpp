@@ -3,6 +3,7 @@
 
 #include "helper/kmer.hpp"
 #include <memory>
+#include <span>
 
 class hash_family {
   public:
