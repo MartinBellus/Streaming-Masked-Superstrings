@@ -3,9 +3,6 @@
 To compile this project, you need to have the following software installed:
 - CMake (version 3.10 or higher)
 - C++ compiler that supports C++23 standard
-  - g++ (version 14 or higher)
-  - clang++ (version 18 or higher)
-  - MSVC (version 19.34 or higher)
 
 ## Build instructions
 

@@ -15,7 +15,8 @@ class murmur_hash {
     std::uint64_t _seed;
 };
 
-class murmur_hash_family : public hash_family {
+class murmur_hash_family : public hash_family<murmur_hash_family> {
+
   public:
     murmur_hash_family(std::size_t nhashes);
     std::span<const hash_t> hash_impl(const Kmer &kmer);
@@ -23,5 +24,8 @@ class murmur_hash_family : public hash_family {
   private:
     murmur_hash xhash, yhash;
 };
+
+static_assert(Hash<murmur_hash>);
+static_assert(HashFamily<murmur_hash_family>);
 
 #endif

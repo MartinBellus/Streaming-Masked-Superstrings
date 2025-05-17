@@ -27,7 +27,7 @@ class poly_hash {
     Modulus mod;
 };
 
-class poly_hash_family : public rolling_hash_family {
+class poly_hash_family : public rolling_hash_family<poly_hash_family> {
   public:
     poly_hash_family(std::size_t nhashes, std::size_t k);
     poly_hash_family(std::size_t nhashes);
@@ -39,5 +39,8 @@ class poly_hash_family : public rolling_hash_family {
     poly_hash xhash, yhash;
     Kmer kmer;
 };
+
+static_assert(RollingHash<poly_hash>);
+static_assert(RollingHashFamily<poly_hash_family>);
 
 #endif

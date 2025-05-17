@@ -5,11 +5,12 @@
 #include <memory>
 #include <span>
 
+template <class T>
 class hash_family {
   public:
     using hash_t = std::uint64_t;
-    std::span<const hash_t> hash(this auto &&self, const Kmer &kmer) {
-        return self.hash_impl(kmer);
+    std::span<const hash_t> hash(const Kmer &kmer) {
+        return static_cast<T *>(this)->hash_impl(kmer);
     }
     hash_family(std::size_t nhashes) : nhashes(nhashes) {
         buffer = std::make_unique<hash_t[]>(nhashes);
@@ -20,17 +21,22 @@ class hash_family {
     std::size_t nhashes;
 };
 
-class rolling_hash_family : public hash_family {
+template <class T>
+class rolling_hash_family : public hash_family<T> {
+  protected:
+    using hash_family<T>::buffer;
+    using hash_family<T>::nhashes;
+
   public:
     using hash_t = std::uint64_t;
 
-    rolling_hash_family(std::size_t nhashes) : hash_family(nhashes) {}
-    void roll(this auto &&self, char c) { self.roll_impl(c); }
-    void init(this auto &&self, const Kmer &kmer) { self.init_impl(kmer); }
-    void reset(this auto &&self) { self.reset_impl(); }
-    std::span<const hash_t> hash_impl(this auto &&self, const Kmer &kmer) {
-        self.init(kmer);
-        return self.get_hashes();
+    rolling_hash_family(std::size_t nhashes) : hash_family<T>(nhashes) {}
+    void roll(char c) { static_cast<T *>(this)->roll_impl(c); }
+    void init(const Kmer &kmer) { static_cast<T *>(this)->init_impl(kmer); }
+    void reset() { static_cast<T *>(this)->reset_impl(); }
+    std::span<const hash_t> hash_impl(const Kmer &kmer) {
+        static_cast<T *>(this)->init(kmer);
+        return static_cast<T *>(this)->get_hashes();
     }
     std::span<const hash_t> get_hashes() const {
         return std::span(buffer.get(), nhashes);
@@ -46,7 +52,7 @@ concept Hash = !T::rolling && requires(T t) {
 };
 
 template <class T>
-concept HashFamily = std::derived_from<T, hash_family> && requires(T t) {
+concept HashFamily = std::derived_from<T, hash_family<T>> && requires(T t) {
     {
         t.hash_impl(std::declval<const Kmer &>())
     } -> std::same_as<std::span<const typename T::hash_t>>;
@@ -67,7 +73,7 @@ concept RollingHash = T::rolling && requires(T t) {
 
 template <class T>
 concept RollingHashFamily =
-        std::derived_from<T, rolling_hash_family> && requires(T t) {
+        std::derived_from<T, rolling_hash_family<T>> && requires(T t) {
             { t.roll_impl(std::declval<char>()) } -> std::same_as<void>;
             { t.init_impl(std::declval<const Kmer &>()) } -> std::same_as<void>;
             { t.reset_impl() } -> std::same_as<void>;
