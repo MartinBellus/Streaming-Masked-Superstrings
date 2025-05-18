@@ -4,27 +4,15 @@ constexpr std::uint64_t m = 0xc6a4a7935bd1e995ULL;
 constexpr std::uint32_t r = 47;
 constexpr std::uint64_t mask = 0xff;
 
-constexpr char nucleotide_to_char[] = {'a', 'c', 'g', 't', 'X'};
+murmur_hash::hash_t murmur_hash_impl(const void *data, std::size_t size,
+                                     std::size_t seed) {
+    murmur_hash::hash_t h = seed ^ (size * m);
 
-std::string kmer_to_string(const Kmer &kmer) {
-    std::string s;
-    s.reserve(kmer.size());
-    for (std::size_t i = 0; i < kmer.size(); i++) {
-        s.push_back(nucleotide_to_char[kmer.get(i)]);
-    }
-    return s;
-}
+    const uint64_t *data1 = (const uint64_t *)data;
+    const uint64_t *end = data1 + (size / 8);
 
-murmur_hash::hash_t murmur_hash::hash(const Kmer &key) const {
-    auto key_str = kmer_to_string(key);
-    auto len = key_str.size();
-    hash_t h = _seed ^ (len * m);
-
-    const uint64_t *data = (const uint64_t *)key_str.data();
-    const uint64_t *end = data + (len / 8);
-
-    while (data != end) {
-        uint64_t k = *data++;
+    while (data1 != end) {
+        uint64_t k = *data1++;
 
         k *= m;
         k ^= k >> r;
@@ -36,7 +24,7 @@ murmur_hash::hash_t murmur_hash::hash(const Kmer &key) const {
 
     const unsigned char *data2 = (const unsigned char *)data;
 
-    switch (len & 7) {
+    switch (size & 7) {
     case 7:
         h ^= ((uint64_t)data2[6]) << 48;
     case 6:
@@ -59,6 +47,10 @@ murmur_hash::hash_t murmur_hash::hash(const Kmer &key) const {
     h ^= h >> r;
 
     return h;
+}
+
+murmur_hash::hash_t murmur_hash::hash(const Kmer &key) const {
+    return murmur_hash_impl(&key.data(), sizeof(key.data()), _seed);
 }
 
 murmur_hash_family::murmur_hash_family(std::size_t nhashes)

@@ -69,7 +69,7 @@ class Kmer {
     bool operator==(const Kmer &other) const {
         return other.K == K && _data == other._data;
     }
-    data_t data() const { return _data; }
+    const data_t &data() const { return _data; }
 
   private:
     std::size_t K;

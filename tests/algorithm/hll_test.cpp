@@ -2,6 +2,7 @@
 #include "hash/murmur_hash.hpp"
 #include "hash/poly_hash.hpp"
 #include "helper/hashed_kmer.hpp"
+#include <chrono>
 #include <iostream>
 #include <unordered_set>
 
@@ -27,10 +28,18 @@ std::size_t exact_count(io::FastaReader &in, std::size_t K) {
 template <typename H>
 void hll_test(const std::string &path, std::size_t K) {
     io::FastaReader in(path);
+    auto start = std::chrono::high_resolution_clock::now();
     std::int64_t count = approximate_count<H>(in, K);
+    auto end = std::chrono::high_resolution_clock::now();
+
     in.reset();
     std::int64_t count_real = exact_count(in, K);
 
+    std::cout << "Time: \t\t\t"
+              << std::chrono::duration_cast<std::chrono::milliseconds>(end -
+                                                                       start)
+                         .count()
+              << "ms\n";
     std::cout << "Approximate count: \t" << count << "\n";
     std::cout << "Exact count: \t\t" << count_real << "\n";
     std::cout << "Error: "
