@@ -9,7 +9,7 @@ class ComputeArgs {
     static std::optional<ComputeArgs> from_cmdline(int argc, std::string *argv);
     static int usage();
     std::size_t k() const { return _k; }
-    std::size_t bpk() const { return _bpk; }
+    std::size_t bits_per_element() const { return _bpk; }
     const std::string &dataset() const { return _dataset; }
     const std::string &output() const { return _output; }
 

@@ -12,7 +12,7 @@ int compute_superstring(std::size_t approx_set_size, io::FastaReader &in,
     auto K = args.k();
     in.reset();
     out.write_header(args.fasta_header());
-    BF filter(10 * approx_set_size, 7, K);
+    BF filter = BF::optimal(approx_set_size, args.bits_per_element(), K);
     while (in.next_sequence()) {
         std::size_t read = 0;
         char c;
