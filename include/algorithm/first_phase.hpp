@@ -1,14 +1,17 @@
 #ifndef FIRST_PHASE_HPP
 #define FIRST_PHASE_HPP
 
+#include "helper/args.hpp"
 #include "io/fasta.hpp"
 
 namespace first_phase {
 
 template <class BF>
-int compute_superstring(std::size_t K, std::size_t approx_set_size,
-                        io::FastaReader &in, io::KmerWriter &out) {
+int compute_superstring(std::size_t approx_set_size, io::FastaReader &in,
+                        io::KmerWriter &out, const ComputeArgs &args) {
+    auto K = args.k();
     in.reset();
+    out.write_header(args.fasta_header());
     BF filter(10 * approx_set_size, 7, K);
     while (in.next_sequence()) {
         std::size_t read = 0;

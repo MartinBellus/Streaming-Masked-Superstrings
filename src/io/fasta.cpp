@@ -20,3 +20,9 @@ void KmerWriter::flush() {
     }
     kmer.reset();
 }
+
+void KmerWriter::write_header(const std::string &header) {
+    stream.write('>');
+    stream.write(header);
+    stream.write('\n');
+}

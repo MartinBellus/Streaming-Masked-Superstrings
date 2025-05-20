@@ -21,6 +21,9 @@ Accuracy exact::compute_accuracy(io::FastaReader &output,
     golden_output.reset();
     Accuracy result;
     char out_c, golden_c;
+    if (!output.next_sequence() || !golden_output.next_sequence()) {
+        return result;
+    }
     while (output.next_nucleotide(out_c) &&
            golden_output.next_nucleotide(golden_c)) {
         bool out = std::isupper(out_c);
@@ -35,10 +38,12 @@ Accuracy exact::compute_accuracy(io::FastaReader &output,
     return result;
 }
 
-int exact::compute_superstring(std::size_t K, io::FastaReader &in,
-                               io::KmerWriter &out) {
+int exact::compute_superstring(io::FastaReader &in, io::KmerWriter &out,
+                               const ExactArgs &args) {
     using kmer_t = HashedKmer<poly_hash>;
+    auto K = args.k();
     in.reset();
+    out.write_header(args.fasta_header());
     std::unordered_set<kmer_t, KmerHash> kmer_set;
     kmer_t kmer(K, 0);
     char c;

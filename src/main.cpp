@@ -37,7 +37,7 @@ int subcomand_compute(auto &&args) {
     FastaReader in(arg.dataset());
     KmerWriter out(arg.output(), arg.k());
     auto size = approximate_count<murmur_hash_family>(in, arg.k());
-    return first_phase::compute_superstring<rolling_bf>(arg.k(), size, in, out);
+    return first_phase::compute_superstring<rolling_bf>(size, in, out, arg);
 }
 
 int subcomand_exact(auto &&args) {
@@ -48,7 +48,7 @@ int subcomand_exact(auto &&args) {
     auto arg = _arg.value();
     FastaReader in(arg.dataset());
     KmerWriter out(arg.output(), arg.k());
-    return exact::compute_superstring(arg.k(), in, out);
+    return exact::compute_superstring(in, out, arg);
 }
 
 int subcomand_compare(auto &&args) {

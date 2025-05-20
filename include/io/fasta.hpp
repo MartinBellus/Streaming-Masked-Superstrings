@@ -56,6 +56,7 @@ class KmerWriter {
         : stream(std::move(stream)), kmer(K) {}
     KmerWriter(const std::string &path, std::size_t K)
         : stream(path), kmer(K) {}
+    void write_header(const std::string &header);
     void add_nucleotide(char c) { kmer.roll(c); }
     void print_nucleotide(int present);
     void flush();

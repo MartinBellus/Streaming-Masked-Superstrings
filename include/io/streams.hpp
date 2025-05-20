@@ -27,6 +27,7 @@ class output_stream {
     output_stream(std::ofstream &&stream) : stream(std::move(stream)) {}
     output_stream(const std::string &path) : stream(path) {}
     void write(char c);
+    void write(const std::string &);
     bool is_open() const { return stream.is_open(); }
 
   private:

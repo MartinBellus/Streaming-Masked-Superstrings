@@ -20,3 +20,5 @@ void input_stream::reset() {
 }
 
 void output_stream::write(char c) { stream.put(c); }
+
+void output_stream::write(const std::string &s) { stream << s; }
