@@ -33,7 +33,7 @@ std::optional<ComputeArgs> ComputeArgs::from_cmdline(int argc,
                                                      std::string *argv) {
     const std::unordered_set<std::string> opts = {"-k", "-bpk"};
     std::unordered_map<std::string, std::string> opt_map = {{"-k", "31"},
-                                                            {"-bpk", "2"}};
+                                                            {"-bpk", "10"}};
     auto begin = argv;
     auto end = argv + argc;
     std::string opt, val;
