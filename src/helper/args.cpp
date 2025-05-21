@@ -119,7 +119,7 @@ std::optional<CompareArgs> CompareArgs::from_cmdline(int argc,
 
 int CompareArgs::usage() {
     // clang-format off
-    std::cerr << "Usage: streaming-masked-superstrings compare [options] <output-fasta> <golden-fasta>" << std::endl;
+    std::cerr << "Usage: streaming-masked-superstrings compare [options] <approximate-output> <exact-output>" << std::endl;
     std::cerr << "Options:" << std::endl;
     // clang-format on
     return 1;

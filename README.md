@@ -29,16 +29,16 @@ This will create the `streaming-masked-superstring` executable in the
 Compute the masked superstring with the approximate algorithm by using the
 following command:
 ```bash
-streaming-masked-superstring <input_file.fa> <output_file.fa>
+streaming-masked-superstring compute <input-fasta> <output-fasta>
 ```
 
 Compute the exact masked superstring by using the `--exact` option:
 ```bash
-streaming-masked-superstring --exact <input_file.fa> <output_file.fa>
+streaming-masked-superstring exact <input-fasta> <output-fasta>
 ```
 
 Compare and report accuracy of the approximate algorithm using the `--compare`
 option:
 ```bash
-streaming-masked-superstring --compare <output.fa> <exact_output.fa>
+streaming-masked-superstring compare <approximate-output> <exact-output>
 ```
