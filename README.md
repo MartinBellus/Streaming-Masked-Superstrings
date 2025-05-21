@@ -27,18 +27,18 @@ This will create the `streaming-masked-superstring` executable in the
 ## Usage
 
 Compute the masked superstring with the approximate algorithm by using the
-following command:
+`compute` subcommand:
 ```bash
 streaming-masked-superstring compute <input-fasta> <output-fasta>
 ```
 
-Compute the exact masked superstring by using the `--exact` option:
+Compute the exact masked superstring by using the `exact` subcommand:
 ```bash
 streaming-masked-superstring exact <input-fasta> <output-fasta>
 ```
 
-Compare and report accuracy of the approximate algorithm using the `--compare`
-option:
+Compare and report accuracy of the approximate algorithm using the `compare`
+subcomand:
 ```bash
 streaming-masked-superstring compare <approximate-output> <exact-output>
 ```
