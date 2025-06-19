@@ -5,6 +5,7 @@
 #include <string>
 
 enum Nucleotide { A = 0, C = 1, G = 2, T = 3, N = 4 };
+constexpr Nucleotide COMPLEMENT[] = {T, G, C, A, N};
 
 Nucleotide char_to_nucleotide(char c);
 

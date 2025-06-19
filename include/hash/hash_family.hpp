@@ -65,7 +65,7 @@ concept HashFamily = std::derived_from<T, hash_family<T>> && requires(T t) {
 
 template <class T>
 concept RollingHash = T::rolling && requires(T t) {
-    { t.get_hash() } -> std::same_as<typename T::hash_t>;
+    { t.get_hash(std::declval<bool>()) } -> std::same_as<typename T::hash_t>;
     {
         t.roll(std::declval<Nucleotide>(), std::declval<Nucleotide>())
     } -> std::same_as<void>;

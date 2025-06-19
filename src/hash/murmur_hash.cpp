@@ -50,7 +50,8 @@ murmur_hash::hash_t murmur_hash_impl(const void *data, std::size_t size,
 }
 
 murmur_hash::hash_t murmur_hash::hash(const Kmer &key) const {
-    return murmur_hash_impl(&key.data(), sizeof(key.data()), _seed);
+    return murmur_hash_impl(&key.data(FORWARD), sizeof(key.data(FORWARD)),
+                            _seed); // TODO
 }
 
 murmur_hash_family::murmur_hash_family(std::size_t nhashes)

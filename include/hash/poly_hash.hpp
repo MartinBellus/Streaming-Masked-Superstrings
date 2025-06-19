@@ -16,13 +16,13 @@ class poly_hash {
         : p(p), mod(mod) {
         init(kmer);
     }
-    hash_t get_hash() const { return state; };
+    hash_t get_hash(bool reverse) const { return reverse ? rev_state : state; };
     void roll(Nucleotide n_in, Nucleotide n_out);
     void init(const Kmer &kmer);
     void reset();
 
   private:
-    std::uint64_t p, state, last_exp;
+    std::uint64_t p, inv_p, state, rev_state, last_exp;
     std::size_t k;
     Modulus mod;
 };

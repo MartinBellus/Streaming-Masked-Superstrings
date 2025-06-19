@@ -28,9 +28,6 @@ std::string kmer_to_string(const Kmer &kmer, KmerRepr repr) {
         Nucleotide nucleotide = kmer.get(i, repr);
         result += nucleotide_to_char[nucleotide];
     }
-    if (repr == KmerRepr::REVERSE) {
-        std::reverse(result.begin(), result.end());
-    }
     return result;
 }
 
@@ -128,6 +125,23 @@ bool canonical_test2(size_t N, size_t K) {
     return kmer1.data(KmerRepr::CANON) == kmer2.data(KmerRepr::CANON);
 }
 
+bool init_test(size_t K) {
+    std::string s = random_dna(K);
+    std::string rev_s = reverse(s);
+    Kmer kmer1(s), kmer2(rev_s);
+    bool res = kmer1.data(KmerRepr::FORWARD) == kmer2.data(KmerRepr::REVERSE) &&
+               kmer1.data(KmerRepr::REVERSE) == kmer2.data(KmerRepr::FORWARD);
+    if (!res) {
+        std::cerr << "Init test failed for K = " << K << ", s = " << s
+                  << ", rev_s = " << rev_s << "\n";
+        std::cerr << "kmer1: " << kmer1.data(KmerRepr::FORWARD) << ", "
+                  << kmer1.data(KmerRepr::REVERSE) << "\n";
+        std::cerr << "kmer2: " << kmer2.data(KmerRepr::FORWARD) << ", "
+                  << kmer2.data(KmerRepr::REVERSE) << "\n";
+    }
+    return res;
+}
+
 int main() {
     for (size_t i = 1; i < 31; i++) {
         assert(reverse_test(100, i));
@@ -135,5 +149,9 @@ int main() {
     for (size_t i = 1; i < 31; i++) {
         assert(canonical_test1(100, i));
         assert(canonical_test2(100, i));
+    }
+    for (size_t k = 1; k < 31; k++) {
+        for (size_t i = 0; i < 100; i++)
+            assert(init_test(k));
     }
 }
