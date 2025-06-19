@@ -63,9 +63,10 @@ class RollingBloomFilter {
         }
         return contains;
     }
-    bool contains(const Kmer &kmer) {
+    bool contains(const Kmer &kmer) const {
+        H tmp_hash_family(hash_family);
         bool contains = true;
-        for (auto &&h : hash_family.hash(kmer)) {
+        for (auto &&h : tmp_hash_family.hash(kmer)) {
             contains &= data.test(_size.reduce(h));
         }
         return contains;

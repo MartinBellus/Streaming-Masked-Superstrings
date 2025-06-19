@@ -15,6 +15,11 @@ class hash_family {
     hash_family(std::size_t nhashes) : nhashes(nhashes) {
         buffer = std::make_unique<hash_t[]>(nhashes);
     }
+    hash_family(const hash_family<T> &f) {
+        nhashes = f.nhashes;
+        buffer = std::make_unique<hash_t[]>(nhashes);
+        std::copy(f.buffer.get(), f.buffer.get() + nhashes, buffer.get());
+    }
 
   protected:
     std::unique_ptr<hash_t[]> buffer;
