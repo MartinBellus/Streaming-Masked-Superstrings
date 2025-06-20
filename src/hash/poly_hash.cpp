@@ -21,7 +21,7 @@ std::uint64_t pow_mod(std::uint64_t a, std::uint64_t b, const Modulus &mod) {
     std::uint64_t result = 1;
     while (b) {
         if (b % 2 == 1) {
-            result = mod.reduce((uint128_t)result * a);
+            result = mod.reduce2((uint128_t)result * a);
         }
         a = mod.reduce((uint128_t)a * a);
         b /= 2;
