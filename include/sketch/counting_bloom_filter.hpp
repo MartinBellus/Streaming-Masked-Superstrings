@@ -8,8 +8,8 @@
 template <HashFamily H, std::size_t BPC = 4>
 class CountingBloomFilter {
   public:
-    CountingBloomFilter(std::size_t size, std::size_t nhashes)
-        : _size(size), hash_family(nhashes), data(size) {}
+    CountingBloomFilter(std::size_t size, std::size_t nhashes, KmerRepr repr)
+        : _size(size), hash_family(nhashes, repr), data(size) {}
     void insert(const Kmer &key) {
         if (contains(key)) {
             return;
@@ -44,8 +44,8 @@ template <RollingHashFamily H, std::size_t BPC = 4>
 class RollingCountingBloomFilter {
   public:
     RollingCountingBloomFilter(std::size_t size, std::size_t nhashes,
-                               std::size_t k)
-        : _size(size), hash_family(nhashes, k), data(size) {}
+                               std::size_t k, KmerRepr repr)
+        : _size(size), hash_family(nhashes, k, repr), data(size) {}
     void init(const Kmer &key) { hash_family.init(key); }
     void reset_hash_family() { hash_family.reset(); }
     void roll(char c) { hash_family.roll(c); }

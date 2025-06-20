@@ -15,7 +15,7 @@ class HyperLogLog {
     static constexpr double alpha = 0.7213 / (1 + 1.079 / buckets);
 
   public:
-    HyperLogLog() : hash_family(1), bitset(buckets) {}
+    HyperLogLog(KmerRepr repr) : hash_family(1, repr), bitset(buckets) {}
     void update(const Kmer &k) {
         auto hash = hash_family.hash(k)[0];
         auto index = hash & index_mask;

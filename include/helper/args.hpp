@@ -10,18 +10,20 @@ class ComputeArgs {
     static int usage();
     std::size_t k() const { return _k; }
     std::size_t bits_per_element() const { return _bpk; }
+    bool unidirectional() const { return _unidirectional; }
     const std::string &dataset() const { return _dataset; }
     const std::string &output() const { return _output; }
 
     std::string fasta_header() const;
 
   private:
-    ComputeArgs(std::size_t k, std::size_t bpk, std::string &&dataset,
-                std::string &&output)
-        : _k(k), _bpk(bpk), _dataset(std::move(dataset)),
-          _output(std::move(output)) {}
+    ComputeArgs(std::size_t k, std::size_t bpk, bool unidirectional,
+                std::string &&dataset, std::string &&output)
+        : _k(k), _bpk(bpk), _unidirectional(unidirectional),
+          _dataset(std::move(dataset)), _output(std::move(output)) {}
     std::size_t _k;
     std::size_t _bpk;
+    bool _unidirectional;
     std::string _dataset;
     std::string _output;
 };
@@ -32,15 +34,19 @@ class ExactArgs {
     static int usage();
 
     std::size_t k() const { return _k; }
+    bool unidirectional() const { return _unidirectional; }
     const std::string &dataset() const { return _dataset; }
     const std::string &output() const { return _output; }
 
     std::string fasta_header() const;
 
   private:
-    ExactArgs(std::size_t k, std::string &&dataset, std::string &&output)
-        : _k(k), _dataset(std::move(dataset)), _output(std::move(output)) {}
+    ExactArgs(std::size_t k, bool unidirectional, std::string &&dataset,
+              std::string &&output)
+        : _k(k), _unidirectional(unidirectional), _dataset(std::move(dataset)),
+          _output(std::move(output)) {}
     std::size_t _k;
+    bool _unidirectional;
     std::string _dataset;
     std::string _output;
 };

@@ -42,10 +42,12 @@ int exact::compute_superstring(io::FastaReader &in, io::KmerWriter &out,
                                const ExactArgs &args) {
     using kmer_t = HashedKmer<poly_hash>;
     auto K = args.k();
+    auto kmer_repr =
+            args.unidirectional() ? KmerRepr::FORWARD : KmerRepr::CANON;
     in.reset();
     out.write_header(args.fasta_header());
     std::unordered_set<kmer_t, KmerHash> kmer_set;
-    kmer_t kmer(K, 0);
+    kmer_t kmer(K, 0, kmer_repr);
     char c;
     while (in.next_sequence()) {
         kmer.reset();
