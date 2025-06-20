@@ -10,13 +10,13 @@ template <HashFamily H>
 class BloomFilter {
   public:
     static BloomFilter<H> optimal(std::size_t num_elements,
-                                  std::size_t bits_per_element) {
+                                  std::size_t bits_per_element, KmerRepr repr) {
         std::size_t size = num_elements * bits_per_element;
         std::size_t nhashes = std::round(std::log(2) * bits_per_element);
-        return BloomFilter<H>(size, nhashes);
+        return BloomFilter<H>(size, nhashes, repr);
     }
-    BloomFilter(std::size_t size, std::size_t nhashes)
-        : _size(size), hash_family(nhashes), data(size) {}
+    BloomFilter(std::size_t size, std::size_t nhashes, KmerRepr repr)
+        : _size(size), hash_family(nhashes, repr), data(size) {}
     void insert(const Kmer &key) {
         for (auto &&h : hash_family.hash(key)) {
             data.set(_size.reduce(h));
@@ -41,13 +41,14 @@ class RollingBloomFilter {
   public:
     static RollingBloomFilter<H> optimal(std::size_t num_elements,
                                          std::size_t bits_per_element,
-                                         std::size_t k) {
+                                         std::size_t k, KmerRepr repr) {
         std::size_t size = num_elements * bits_per_element;
         std::size_t nhashes = std::round(std::log(2) * bits_per_element);
-        return RollingBloomFilter<H>(size, nhashes, k);
+        return RollingBloomFilter<H>(size, nhashes, k, repr);
     }
-    RollingBloomFilter(std::size_t size, std::size_t nhashes, std::size_t k)
-        : _size(size), hash_family(nhashes, k), data(size) {}
+    RollingBloomFilter(std::size_t size, std::size_t nhashes, std::size_t k,
+                       KmerRepr repr)
+        : _size(size), hash_family(nhashes, k, repr), data(size) {}
     void init(const Kmer &key) { hash_family.init(key); }
     void reset_hash_family() { hash_family.reset(); }
     void roll(char c) { hash_family.roll(c); }
@@ -63,9 +64,10 @@ class RollingBloomFilter {
         }
         return contains;
     }
-    bool contains(const Kmer &kmer) {
+    bool contains(const Kmer &kmer) const {
+        H tmp_hash_family(hash_family);
         bool contains = true;
-        for (auto &&h : hash_family.hash(kmer)) {
+        for (auto &&h : tmp_hash_family.hash(kmer)) {
             contains &= data.test(_size.reduce(h));
         }
         return contains;

@@ -16,27 +16,29 @@ class poly_hash {
         : p(p), mod(mod) {
         init(kmer);
     }
-    hash_t get_hash() const { return state; };
+    hash_t get_hash(bool reverse) const { return reverse ? rev_state : state; };
     void roll(Nucleotide n_in, Nucleotide n_out);
     void init(const Kmer &kmer);
     void reset();
 
   private:
-    std::uint64_t p, state, last_exp;
+    std::uint64_t p, inv_p, state, rev_state, last_exp;
     std::size_t k;
     Modulus mod;
 };
 
 class poly_hash_family : public rolling_hash_family<poly_hash_family> {
   public:
-    poly_hash_family(std::size_t nhashes, std::size_t k);
-    poly_hash_family(std::size_t nhashes);
+    poly_hash_family(std::size_t nhashes, std::size_t k, KmerRepr repr);
+    poly_hash_family(std::size_t nhashes, KmerRepr repr);
     void roll_impl(char c);
     void init_impl(const Kmer &kmer);
     void reset_impl();
 
   private:
+    void update_hashes();
     poly_hash xhash, yhash;
+    KmerRepr repr;
     Kmer kmer;
 };
 

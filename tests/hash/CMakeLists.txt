@@ -1,0 +1,2 @@
+add_executable(poly_hash_test poly_hash_test.cpp)
+target_link_libraries(poly_hash_test PRIVATE hash)

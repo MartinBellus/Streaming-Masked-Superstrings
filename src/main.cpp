@@ -36,7 +36,7 @@ int subcomand_compute(auto &&args) {
     auto arg = _arg.value();
     FastaReader in(arg.dataset());
     KmerWriter out(arg.output(), arg.k());
-    auto size = approximate_count<murmur_hash_family>(in, arg.k());
+    auto size = approximate_count<murmur_hash_family>(in, arg);
     return first_phase::compute_superstring<rolling_bf>(size, in, out, arg);
 }
 

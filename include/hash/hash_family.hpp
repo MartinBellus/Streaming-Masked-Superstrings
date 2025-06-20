@@ -15,6 +15,11 @@ class hash_family {
     hash_family(std::size_t nhashes) : nhashes(nhashes) {
         buffer = std::make_unique<hash_t[]>(nhashes);
     }
+    hash_family(const hash_family<T> &f) {
+        nhashes = f.nhashes;
+        buffer = std::make_unique<hash_t[]>(nhashes);
+        std::copy(f.buffer.get(), f.buffer.get() + nhashes, buffer.get());
+    }
 
   protected:
     std::unique_ptr<hash_t[]> buffer;
@@ -48,7 +53,9 @@ concept Hash = !T::rolling && requires(T t) {
     {
         t.hash(std::declval<const Kmer &>())
     } -> std::same_as<typename T::hash_t>;
-    { T(std::declval<std::uint64_t>()) } -> std::same_as<T>;
+    {
+        T(std::declval<std::uint64_t>(), std::declval<KmerRepr>())
+    } -> std::same_as<T>;
 };
 
 template <class T>
@@ -60,7 +67,7 @@ concept HashFamily = std::derived_from<T, hash_family<T>> && requires(T t) {
 
 template <class T>
 concept RollingHash = T::rolling && requires(T t) {
-    { t.get_hash() } -> std::same_as<typename T::hash_t>;
+    { t.get_hash(std::declval<bool>()) } -> std::same_as<typename T::hash_t>;
     {
         t.roll(std::declval<Nucleotide>(), std::declval<Nucleotide>())
     } -> std::same_as<void>;

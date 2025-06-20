@@ -5,10 +5,21 @@
 #include <unordered_map>
 #include <unordered_set>
 
+using opt_set = std::unordered_set<std::string>;
+
 bool next_opt(std::string *&begin, const std::string *end, std::string &opt,
-              std::string &val, const std::unordered_set<std::string> &opts) {
+              std::string &val, const opt_set &opts, const opt_set &flags) {
     if (begin == end) {
         return false;
+    }
+    for (auto &&f : flags) {
+        if (*begin != f) {
+            continue;
+        }
+        opt = f;
+        val = "";
+        begin++;
+        return true;
     }
     for (auto &&o : opts) {
         if (!begin->starts_with(o)) {
@@ -31,13 +42,14 @@ bool next_opt(std::string *&begin, const std::string *end, std::string &opt,
 
 std::optional<ComputeArgs> ComputeArgs::from_cmdline(int argc,
                                                      std::string *argv) {
-    const std::unordered_set<std::string> opts = {"-k", "-bpk"};
+    const opt_set opts = {"-k", "-bpk"};
+    const opt_set flags = {"-u"};
     std::unordered_map<std::string, std::string> opt_map = {{"-k", "31"},
                                                             {"-bpk", "10"}};
     auto begin = argv;
     auto end = argv + argc;
     std::string opt, val;
-    while (next_opt(begin, end, opt, val, opts)) {
+    while (next_opt(begin, end, opt, val, opts, flags)) {
         opt_map[opt] = val;
     }
     if (end - begin != 2) {
@@ -46,9 +58,9 @@ std::optional<ComputeArgs> ComputeArgs::from_cmdline(int argc,
     auto input = *(begin++);
     auto output = *(begin++);
     try {
-        return ComputeArgs(std::stoul(opt_map.at("-k")),
-                           std::stoul(opt_map.at("-bpk")), std::move(input),
-                           std::move(output));
+        return ComputeArgs(
+                std::stoul(opt_map.at("-k")), std::stoul(opt_map.at("-bpk")),
+                opt_map.contains("-u"), std::move(input), std::move(output));
     } catch (...) {
         return std::nullopt;
     }
@@ -60,26 +72,26 @@ int ComputeArgs::usage() {
     std::cerr << "Options:" << std::endl;
     std::cerr << "  -k <int>         kmer size (default = 31)" << std::endl;
     std::cerr << "  -bpk <int>       bits per kmer (default = 10)" << std::endl;
+    std::cerr << "  -u               treat kmer and its reverse complement as distinct" << std::endl;
     // clang-format on
     return 1;
 }
 
 std::string ComputeArgs::fasta_header() const {
-    return std::format(
-            "approximate masked superstring dataset='{}' k={} bits-per-kmer={}",
-            _dataset, _k, _bpk);
+    std::string mode = _unidirectional ? "unidirectional" : "bidirectional";
+    return std::format("approximate masked superstring dataset='{}' k={} "
+                       "bits-per-kmer={} mode={}",
+                       _dataset, _k, _bpk, mode);
 }
 
 std::optional<ExactArgs> ExactArgs::from_cmdline(int argc, std::string *argv) {
-    const std::unordered_set<std::string> opts = {"-k"};
+    const opt_set opts = {"-k"};
+    const opt_set flags = {"-u"};
     std::unordered_map<std::string, std::string> opt_map;
     auto begin = argv;
     auto end = argv + argc;
     std::string opt, val;
-    while (next_opt(begin, end, opt, val, opts)) {
-        if (opt_map.contains(opt)) {
-            return std::nullopt;
-        }
+    while (next_opt(begin, end, opt, val, opts, flags)) {
         opt_map[opt] = val;
     }
     if (end - begin != 2) {
@@ -88,8 +100,8 @@ std::optional<ExactArgs> ExactArgs::from_cmdline(int argc, std::string *argv) {
     auto input = *(begin++);
     auto output = *(begin++);
     try {
-        return ExactArgs(std::stoul(opt_map.at("-k")), std::move(input),
-                         std::move(output));
+        return ExactArgs(std::stoul(opt_map.at("-k")), opt_map.contains("-u"),
+                         std::move(input), std::move(output));
     } catch (...) {
         return std::nullopt;
     }
@@ -100,13 +112,15 @@ int ExactArgs::usage() {
     std::cerr << "Usage: streaming-masked-superstrings exact [options] <input-fasta> <output-fasta>" << std::endl;
     std::cerr << "Options:" << std::endl;
     std::cerr << "  -k <int>         kmer size" << std::endl;
+    std::cerr << "  -u               treat kmer and its reverse complement as distinct" << std::endl;
     // clang-format on
     return 1;
 }
 
 std::string ExactArgs::fasta_header() const {
-    return std::format("exact masked superstring dataset='{}' k={}", _dataset,
-                       _k);
+    std::string mode = _unidirectional ? "unidirectional" : "bidirectional";
+    return std::format("exact masked superstring dataset='{}' k={} mode={}",
+                       _dataset, _k, mode);
 }
 
 std::optional<CompareArgs> CompareArgs::from_cmdline(int argc,

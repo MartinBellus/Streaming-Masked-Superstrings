@@ -2,13 +2,16 @@
 #define APPROXIMATE_COUNT_HPP
 
 #include "hash/hash_family.hpp"
+#include "helper/args.hpp"
 #include "io/fasta.hpp"
 #include "sketch/hyper_log_log.hpp"
 
 template <HashFamily H>
-std::size_t approximate_count(io::FastaReader &in, std::size_t K) {
+std::size_t approximate_count(io::FastaReader &in, const ComputeArgs &arg) {
+    auto K = arg.k();
+    auto kmer_repr = arg.unidirectional() ? KmerRepr::FORWARD : KmerRepr::CANON;
     in.reset();
-    HyperLogLog<H> hll;
+    HyperLogLog<H> hll(kmer_repr);
     Kmer kmer(K);
     char c;
 
