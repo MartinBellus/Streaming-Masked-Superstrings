@@ -1,6 +1,7 @@
 #include "helper/kmer.hpp"
 
 #include <stdexcept>
+#include <utility>
 
 using data_t = Kmer::data_t;
 
@@ -63,6 +64,7 @@ const data_t &Kmer::data(KmerRepr representation) const {
     case KmerRepr::CANON:
         return _data < _rev_data ? _data : _rev_data;
     }
+    std::unreachable();
 }
 
 bool Kmer::use_reverse(KmerRepr representation) const {
@@ -74,4 +76,5 @@ bool Kmer::use_reverse(KmerRepr representation) const {
     case KmerRepr::CANON:
         return _data > _rev_data;
     }
+    std::unreachable();
 }

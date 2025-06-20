@@ -1,6 +1,7 @@
 #include "algorithm/approximate_count.hpp"
 #include "hash/murmur_hash.hpp"
 #include "hash/poly_hash.hpp"
+#include "helper/args.hpp"
 #include "helper/hashed_kmer.hpp"
 #include <chrono>
 #include <iostream>
@@ -9,7 +10,7 @@
 std::size_t exact_count(io::FastaReader &in, std::size_t K) {
     using kmer_t = HashedKmer<poly_hash>;
     std::unordered_set<kmer_t, KmerHash> kmer_set;
-    kmer_t kmer(K, 0);
+    kmer_t kmer(K, 0, KmerRepr::FORWARD);
     char c;
     while (in.next_sequence()) {
         kmer.reset();
@@ -28,8 +29,10 @@ std::size_t exact_count(io::FastaReader &in, std::size_t K) {
 template <typename H>
 void hll_test(const std::string &path, std::size_t K) {
     io::FastaReader in(path);
+    std::string fake_args[] = {"-k", std::to_string(K), "", ""};
+    auto arg = ComputeArgs::from_cmdline(4, fake_args).value();
     auto start = std::chrono::high_resolution_clock::now();
-    std::int64_t count = approximate_count<H>(in, K);
+    std::int64_t count = approximate_count<H>(in, arg);
     auto end = std::chrono::high_resolution_clock::now();
 
     in.reset();

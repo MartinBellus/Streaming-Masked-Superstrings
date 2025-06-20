@@ -21,7 +21,7 @@ string rand_seq(size_t len) {
 template <class T>
 void roll_benchmark(size_t len, size_t k, const string &name) {
     cout << endl << "Benchmarking " << name << endl;
-    T bf(10 * len, 7, k);
+    T bf(10 * len, 7, k, KmerRepr::FORWARD);
     string s = rand_seq(len + k - 1);
     unordered_set<string> strings;
     for (size_t i = 0; i < len; i++) {
@@ -81,7 +81,7 @@ T create(std::size_t size, std::size_t nhashes) {
     if constexpr (is_unordered_set<T>) {
         return T();
     } else {
-        return T(size, nhashes);
+        return T(size, nhashes, KmerRepr::FORWARD);
     }
 }
 
