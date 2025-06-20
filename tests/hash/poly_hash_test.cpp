@@ -1,6 +1,8 @@
 #include "hash/poly_hash.hpp"
+#include <algorithm>
 #include <cassert>
 #include <iostream>
+#include <vector>
 
 constexpr char nucleotide_to_char[] = {'A', 'C', 'G', 'T'};
 
@@ -144,6 +146,44 @@ bool test_poly_hash_complements(size_t n, size_t K) {
     return res;
 }
 
+bool test_hash_family(size_t N, size_t K) {
+    std::string target = random_dna(K);
+    std::string s =
+            target + random_dna(std::min((size_t)0, N - K)) + reverse(target);
+    poly_hash_family hashF(4, K, KmerRepr::CANON);
+
+    size_t i = 0;
+    for (; i < K; i++) {
+        hashF.roll(s[i]);
+    }
+
+    auto &&hash1 = hashF.get_hashes();
+    std::vector<std::uint64_t> hashes1(hash1.begin(), hash1.end());
+
+    for (; i < s.size(); i++) {
+        hashF.roll(s[i]);
+    }
+
+    auto &&hash2 = hashF.get_hashes();
+    std::vector<std::uint64_t> hashes2(hash2.begin(), hash2.end());
+
+    bool res = hashes1 == hashes2;
+    if (!res) {
+        std::cerr << "Hash family test failed for K = " << K << ", N = " << N
+                  << ", s = " << s << "\n";
+        std::cerr << "hash1: ";
+        for (const auto &h : hashes1) {
+            std::cerr << h << " ";
+        }
+        std::cerr << "\nhash2: ";
+        for (const auto &h : hashes2) {
+            std::cerr << h << " ";
+        }
+        std::cerr << "\n";
+    }
+    return res;
+}
+
 int main() {
     for (int k = 1; k < 31; k++) {
         for (int i = 0; i < 100; i++) {
@@ -169,6 +209,15 @@ int main() {
         }
         for (int i = 0; i < 50; i++) {
             assert(test_poly_hash_complements(2 * k, k));
+        }
+    }
+
+    for (int k = 1; k < 31; k++) {
+        for (int i = 0; i < 50; i++) {
+            assert(test_hash_family(k / 2, k));
+        }
+        for (int i = 0; i < 50; i++) {
+            assert(test_hash_family(2 * k, k));
         }
     }
 }
