@@ -9,7 +9,7 @@ constexpr Nucleotide COMPLEMENT[] = {T, G, C, A, N};
 
 Nucleotide char_to_nucleotide(char c);
 
-enum KmerRepr {
+enum class KmerRepr {
     FORWARD,
     REVERSE,
     CANON,
@@ -29,8 +29,9 @@ class Kmer {
      * representation
      * @return The nucleotide at position i
      */
-    Nucleotide get(std::size_t i, KmerRepr representation) const;
-    Nucleotide last(KmerRepr representation) const {
+    Nucleotide get(std::size_t i,
+                   KmerRepr representation = KmerRepr::FORWARD) const;
+    Nucleotide last(KmerRepr representation = KmerRepr::FORWARD) const {
         return get(K - 1, representation);
     }
     std::size_t size() const { return K; }

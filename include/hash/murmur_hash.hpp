@@ -7,18 +7,20 @@ class murmur_hash {
   public:
     static constexpr bool rolling = false;
     using hash_t = std::uint64_t;
-    murmur_hash(std::uint64_t seed) : _seed(seed) {}
+    murmur_hash(std::uint64_t seed, KmerRepr repr) : _seed(seed), repr(repr) {}
     hash_t hash(const Kmer &key) const;
     std::uint64_t seed() const { return _seed; }
 
   private:
     std::uint64_t _seed;
+    KmerRepr repr;
 };
 
 class murmur_hash_family : public hash_family<murmur_hash_family> {
 
   public:
-    murmur_hash_family(std::size_t nhashes);
+    murmur_hash_family(std::size_t nhashes, KmerRepr repr);
+    murmur_hash_family(std::size_t nhashes, std::uint64_t seed, KmerRepr repr);
     std::span<const hash_t> hash_impl(const Kmer &kmer);
 
   private:

@@ -50,12 +50,15 @@ murmur_hash::hash_t murmur_hash_impl(const void *data, std::size_t size,
 }
 
 murmur_hash::hash_t murmur_hash::hash(const Kmer &key) const {
-    return murmur_hash_impl(&key.data(FORWARD), sizeof(key.data(FORWARD)),
-                            _seed); // TODO
+    return murmur_hash_impl(&key.data(repr), sizeof(key.data(repr)), _seed);
 }
 
-murmur_hash_family::murmur_hash_family(std::size_t nhashes)
-    : hash_family(nhashes), xhash(0x1234), yhash(0x5678) {}
+murmur_hash_family::murmur_hash_family(std::size_t nhashes, std::uint64_t seed,
+                                       KmerRepr repr)
+    : hash_family(nhashes), xhash(seed, repr), yhash(seed + 1, repr) {}
+
+murmur_hash_family::murmur_hash_family(std::size_t nhashes, KmerRepr repr)
+    : murmur_hash_family(nhashes, 42, repr) {}
 
 std::span<const murmur_hash_family::hash_t>
 murmur_hash_family::hash_impl(const Kmer &kmer) {

@@ -56,22 +56,22 @@ Nucleotide Kmer::get(std::size_t i, KmerRepr representation) const {
 
 const data_t &Kmer::data(KmerRepr representation) const {
     switch (representation) {
-    case FORWARD:
+    case KmerRepr::FORWARD:
         return _data;
-    case REVERSE:
+    case KmerRepr::REVERSE:
         return _rev_data;
-    case CANON:
+    case KmerRepr::CANON:
         return _data < _rev_data ? _data : _rev_data;
     }
 }
 
 bool Kmer::use_reverse(KmerRepr representation) const {
     switch (representation) {
-    case FORWARD:
+    case KmerRepr::FORWARD:
         return false;
-    case REVERSE:
+    case KmerRepr::REVERSE:
         return true;
-    case CANON:
+    case KmerRepr::CANON:
         return _data > _rev_data;
     }
 }

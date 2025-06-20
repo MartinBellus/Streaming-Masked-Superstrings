@@ -53,7 +53,9 @@ concept Hash = !T::rolling && requires(T t) {
     {
         t.hash(std::declval<const Kmer &>())
     } -> std::same_as<typename T::hash_t>;
-    { T(std::declval<std::uint64_t>()) } -> std::same_as<T>;
+    {
+        T(std::declval<std::uint64_t>(), std::declval<KmerRepr>())
+    } -> std::same_as<T>;
 };
 
 template <class T>
