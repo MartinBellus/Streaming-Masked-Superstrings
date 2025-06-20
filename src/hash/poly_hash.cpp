@@ -75,11 +75,13 @@ void poly_hash::reset() {
     rev_state = 0;
 }
 
-poly_hash_family::poly_hash_family(std::size_t nhashes, std::size_t k)
-    : rolling_hash_family(nhashes), kmer(k), xhash(k, 0), yhash(k, 1) {}
+poly_hash_family::poly_hash_family(std::size_t nhashes, std::size_t k,
+                                   KmerRepr repr)
+    : rolling_hash_family(nhashes), repr(repr), kmer(k), xhash(k, 0),
+      yhash(k, 1) {}
 
-poly_hash_family::poly_hash_family(std::size_t nhashes)
-    : poly_hash_family(nhashes, 0) {}
+poly_hash_family::poly_hash_family(std::size_t nhashes, KmerRepr repr)
+    : poly_hash_family(nhashes, 0, repr) {}
 
 void poly_hash_family::roll_impl(char c) {
     Nucleotide n_in = char_to_nucleotide(c);
@@ -87,26 +89,29 @@ void poly_hash_family::roll_impl(char c) {
     kmer.roll(c);
     xhash.roll(n_in, n_out);
     yhash.roll(n_in, n_out);
-    auto x = xhash.get_hash(0); // TODO
-    auto y = yhash.get_hash(0); // TODO
-    for (std::size_t i = 0; i < nhashes; i++) {
-        buffer[i] = x + i * y;
-    }
+
+    update_hashes();
 }
 
 void poly_hash_family::init_impl(const Kmer &key) {
     kmer = key;
     xhash.init(kmer);
     yhash.init(kmer);
-    auto x = xhash.get_hash(0); // TODO
-    auto y = yhash.get_hash(0); // TODO
-    for (std::size_t i = 0; i < nhashes; i++) {
-        buffer[i] = x + i * y;
-    }
+
+    update_hashes();
 }
 
 void poly_hash_family::reset_impl() {
     xhash.reset();
     yhash.reset();
     kmer.reset();
+}
+
+void poly_hash_family::update_hashes() {
+    bool use_reverse = kmer.use_reverse(repr);
+    auto x = xhash.get_hash(use_reverse);
+    auto y = yhash.get_hash(use_reverse);
+    for (std::size_t i = 0; i < nhashes; i++) {
+        buffer[i] = x + i * y;
+    }
 }

@@ -29,14 +29,16 @@ class poly_hash {
 
 class poly_hash_family : public rolling_hash_family<poly_hash_family> {
   public:
-    poly_hash_family(std::size_t nhashes, std::size_t k);
-    poly_hash_family(std::size_t nhashes);
+    poly_hash_family(std::size_t nhashes, std::size_t k, KmerRepr repr);
+    poly_hash_family(std::size_t nhashes, KmerRepr repr);
     void roll_impl(char c);
     void init_impl(const Kmer &kmer);
     void reset_impl();
 
   private:
+    void update_hashes();
     poly_hash xhash, yhash;
+    KmerRepr repr;
     Kmer kmer;
 };
 

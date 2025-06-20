@@ -44,16 +44,8 @@ class Kmer {
         return other.K == K &&
                (_data == other._data || _data == other._rev_data);
     }
-    const data_t &data(KmerRepr representation) const {
-        switch (representation) {
-        case FORWARD:
-            return _data;
-        case REVERSE:
-            return _rev_data;
-        case CANON:
-            return _data < _rev_data ? _data : _rev_data;
-        }
-    }
+    const data_t &data(KmerRepr representation) const;
+    bool use_reverse(KmerRepr representation) const;
 
   private:
     std::size_t K;
