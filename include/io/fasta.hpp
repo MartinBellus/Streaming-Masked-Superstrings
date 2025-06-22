@@ -52,10 +52,10 @@ enum {
 
 class KmerWriter {
   public:
-    KmerWriter(output_stream &&stream, std::size_t K)
-        : stream(std::move(stream)), kmer(K) {}
-    KmerWriter(const std::string &path, std::size_t K)
-        : stream(path), kmer(K) {}
+    KmerWriter(output_stream &&stream, std::size_t K, bool splice)
+        : stream(std::move(stream)), kmer(K), last_one(K), splice(splice) {}
+    KmerWriter(const std::string &path, std::size_t K, bool splice)
+        : stream(path), kmer(K), last_one(K), splice(splice) {}
     void write_header(const std::string &header);
     void add_nucleotide(char c) { kmer.roll(c); }
     void print_nucleotide(int present);
@@ -64,6 +64,8 @@ class KmerWriter {
   private:
     output_stream stream;
     Kmer kmer;
+    std::size_t last_one;
+    bool splice;
 };
 
 } // namespace io

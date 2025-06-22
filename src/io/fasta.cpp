@@ -9,15 +9,20 @@ void KmerWriter::print_nucleotide(int present) {
     auto n = kmer.last();
     auto to_print = nucleotide_to_char[n];
     if (present == PRESENT) {
+        last_one = 0;
         to_print = std::toupper(to_print);
     }
-    stream.write(to_print);
+    if (!splice || last_one < kmer.size()) {
+        stream.write(to_print);
+    }
+    last_one++;
 }
 
 void KmerWriter::flush() {
     int to_print = std::min(kmer.available(), kmer.size() - 1);
     for (int i = to_print - 1; i >= 0; i--) {
-        stream.write(nucleotide_to_char[kmer.get(i)]);
+        add_nucleotide('A');
+        print_nucleotide(NOT_PRESENT);
     }
     kmer.reset();
 }
