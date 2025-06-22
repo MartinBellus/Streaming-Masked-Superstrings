@@ -43,7 +43,7 @@ bool next_opt(std::string *&begin, const std::string *end, std::string &opt,
 std::optional<ComputeArgs> ComputeArgs::from_cmdline(int argc,
                                                      std::string *argv) {
     const opt_set opts = {"-k", "-bpk"};
-    const opt_set flags = {"-u"};
+    const opt_set flags = {"-u", "-s", "--no-splice"};
     std::unordered_map<std::string, std::string> opt_map = {{"-k", "31"},
                                                             {"-bpk", "10"}};
     auto begin = argv;
@@ -60,7 +60,9 @@ std::optional<ComputeArgs> ComputeArgs::from_cmdline(int argc,
     try {
         return ComputeArgs(
                 std::stoul(opt_map.at("-k")), std::stoul(opt_map.at("-bpk")),
-                opt_map.contains("-u"), std::move(input), std::move(output));
+                opt_map.contains("-u"),
+                opt_map.contains("-s") || opt_map.contains("--no-splice"),
+                std::move(input), std::move(output));
     } catch (...) {
         return std::nullopt;
     }
@@ -73,6 +75,7 @@ int ComputeArgs::usage() {
     std::cerr << "  -k <int>         kmer size (default = 31)" << std::endl;
     std::cerr << "  -bpk <int>       bits per kmer (default = 10)" << std::endl;
     std::cerr << "  -u               treat kmer and its reverse complement as distinct" << std::endl;
+    std::cerr << "  -s, --no-splice  do not splice the resulting masked superstring" << std::endl;
     // clang-format on
     return 1;
 }
@@ -80,14 +83,14 @@ int ComputeArgs::usage() {
 std::string ComputeArgs::fasta_header() const {
     std::string mode = _unidirectional ? "unidirectional" : "bidirectional";
     return std::format("approximate masked superstring dataset='{}' k={} "
-                       "bits-per-kmer={} mode={}",
-                       _dataset, _k, _bpk, mode);
+                       "bits-per-kmer={} mode={} splice={}",
+                       _dataset, _k, _bpk, mode, !_no_splice);
 }
 
 std::optional<ExactArgs> ExactArgs::from_cmdline(int argc, std::string *argv) {
     const opt_set opts = {"-k"};
-    const opt_set flags = {"-u"};
-    std::unordered_map<std::string, std::string> opt_map;
+    const opt_set flags = {"-u", "-s", "--no-splice"};
+    std::unordered_map<std::string, std::string> opt_map = {{"-k", "31"}};
     auto begin = argv;
     auto end = argv + argc;
     std::string opt, val;
@@ -101,6 +104,8 @@ std::optional<ExactArgs> ExactArgs::from_cmdline(int argc, std::string *argv) {
     auto output = *(begin++);
     try {
         return ExactArgs(std::stoul(opt_map.at("-k")), opt_map.contains("-u"),
+                         opt_map.contains("-s") ||
+                                 opt_map.contains("--no-splice"),
                          std::move(input), std::move(output));
     } catch (...) {
         return std::nullopt;
@@ -111,16 +116,18 @@ int ExactArgs::usage() {
     // clang-format off
     std::cerr << "Usage: streaming-masked-superstrings exact [options] <input-fasta> <output-fasta>" << std::endl;
     std::cerr << "Options:" << std::endl;
-    std::cerr << "  -k <int>         kmer size" << std::endl;
+    std::cerr << "  -k <int>         kmer size (default = 31)" << std::endl;
     std::cerr << "  -u               treat kmer and its reverse complement as distinct" << std::endl;
+    std::cerr << "  -s, --no-splice  do not splice the resulting masked superstring" << std::endl;
     // clang-format on
     return 1;
 }
 
 std::string ExactArgs::fasta_header() const {
     std::string mode = _unidirectional ? "unidirectional" : "bidirectional";
-    return std::format("exact masked superstring dataset='{}' k={} mode={}",
-                       _dataset, _k, mode);
+    return std::format(
+            "exact masked superstring dataset='{}' k={} mode={} splice={}",
+            _dataset, _k, mode, !_no_splice);
 }
 
 std::optional<CompareArgs> CompareArgs::from_cmdline(int argc,
