@@ -1,4 +1,5 @@
 #include "helper/args.hpp"
+#include <filesystem>
 #include <format>
 #include <iostream>
 #include <string>
@@ -40,10 +41,17 @@ bool next_opt(std::string *&begin, const std::string *end, std::string &opt,
     return false;
 }
 
+std::string get_tmp_file_name(const std::string &input) {
+    std::string tmp_file_filename = std::format(
+            "{}-{:05}.tmp", std::filesystem::path(input).stem().string(),
+            time(NULL) % 100000);
+    return std::filesystem::temp_directory_path().string() + tmp_file_filename;
+}
+
 std::optional<ComputeArgs> ComputeArgs::from_cmdline(int argc,
                                                      std::string *argv) {
-    const opt_set opts = {"-k", "-bpk"};
-    const opt_set flags = {"-u", "-s", "--no-splice"};
+    const opt_set opts = {"-k", "-bpk", "-t"};
+    const opt_set flags = {"-u", "-s", "--no-splice", "-f"};
     std::unordered_map<std::string, std::string> opt_map = {{"-k", "31"},
                                                             {"-bpk", "10"}};
     auto begin = argv;
@@ -56,13 +64,23 @@ std::optional<ComputeArgs> ComputeArgs::from_cmdline(int argc,
         return std::nullopt;
     }
     auto input = *(begin++);
-    auto output = *(begin++);
+    auto first_out = *(begin++);
+    std::string second_out = "";
+    if (!opt_map.contains("-f")) {
+        if (opt_map.contains("-t")) {
+            second_out = opt_map.at("-t");
+        } else {
+            second_out = get_tmp_file_name(input);
+        }
+        swap(first_out, second_out);
+    }
     try {
         return ComputeArgs(
                 std::stoul(opt_map.at("-k")), std::stoul(opt_map.at("-bpk")),
                 opt_map.contains("-u"),
                 opt_map.contains("-s") || opt_map.contains("--no-splice"),
-                std::move(input), std::move(output));
+                opt_map.contains("-f"), std::move(input), std::move(first_out),
+                std::move(second_out));
     } catch (...) {
         return std::nullopt;
     }
@@ -74,8 +92,10 @@ int ComputeArgs::usage() {
     std::cerr << "Options:" << std::endl;
     std::cerr << "  -k <int>         kmer size (default = 31)" << std::endl;
     std::cerr << "  -bpk <int>       bits per kmer (default = 10)" << std::endl;
+    std::cerr << "  -t <path>        path to the temporary file used in second phase" << std::endl;
     std::cerr << "  -u               treat kmer and its reverse complement as distinct" << std::endl;
     std::cerr << "  -s, --no-splice  do not splice the resulting masked superstring" << std::endl;
+    std::cerr << "  -f               run only the first phase of the algorithm" << std::endl;
     // clang-format on
     return 1;
 }

@@ -32,7 +32,7 @@ int subcomand_compute(auto &&args) {
     }
     auto arg = _arg.value();
     FastaReader in(arg.dataset());
-    KmerWriter out(arg.output(), arg.k(), arg.splice());
+    KmerWriter out(arg.first_phase_output(), arg.k(), arg.splice());
     auto size = approximate_count<murmur_hash_family>(in, arg);
     return first_phase::compute_superstring<poly_hash_family>(size, in, out,
                                                               arg);

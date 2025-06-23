@@ -12,22 +12,29 @@ class ComputeArgs {
     std::size_t bits_per_element() const { return _bpk; }
     bool unidirectional() const { return _unidirectional; }
     bool splice() const { return !_no_splice; }
+    bool second_phase() const { return !_skip_second_phase; }
     const std::string &dataset() const { return _dataset; }
-    const std::string &output() const { return _output; }
+    const std::string &first_phase_output() const { return _first_out; }
+    const std::string &second_phase_output() const { return _second_out; }
 
     std::string fasta_header() const;
 
   private:
     ComputeArgs(std::size_t k, std::size_t bpk, bool unidirectional,
-                bool splice, std::string &&dataset, std::string &&output)
+                bool splice, bool skip_second, std::string &&dataset,
+                std::string &&first_out, std::string &&second_out)
         : _k(k), _bpk(bpk), _unidirectional(unidirectional), _no_splice(splice),
-          _dataset(std::move(dataset)), _output(std::move(output)) {}
+          _skip_second_phase(skip_second), _dataset(std::move(dataset)),
+          _first_out(std::move(first_out)), _second_out(std::move(second_out)) {
+    }
     std::size_t _k;
     std::size_t _bpk;
     bool _unidirectional;
     bool _no_splice;
+    bool _skip_second_phase;
     std::string _dataset;
-    std::string _output;
+    std::string _first_out;
+    std::string _second_out;
 };
 
 class ExactArgs {
