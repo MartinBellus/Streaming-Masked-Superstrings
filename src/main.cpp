@@ -5,14 +5,11 @@
 #include "hash/poly_hash.hpp"
 #include "helper/args.hpp"
 #include "io/fasta.hpp"
-#include "sketch/bloom_filter.hpp"
 #include <iostream>
 #include <ranges>
 #include <vector>
 
 using namespace io;
-
-using rolling_bf = RollingBloomFilter<poly_hash_family>;
 
 int usage() {
     // clang-format off
@@ -37,7 +34,8 @@ int subcomand_compute(auto &&args) {
     FastaReader in(arg.dataset());
     KmerWriter out(arg.output(), arg.k(), arg.splice());
     auto size = approximate_count<murmur_hash_family>(in, arg);
-    return first_phase::compute_superstring<rolling_bf>(size, in, out, arg);
+    return first_phase::compute_superstring<poly_hash_family>(size, in, out,
+                                                              arg);
 }
 
 int subcomand_exact(auto &&args) {

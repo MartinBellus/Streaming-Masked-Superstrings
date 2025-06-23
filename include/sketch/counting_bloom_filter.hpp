@@ -4,10 +4,19 @@
 #include "hash/hash_family.hpp"
 #include "helper/counting_bitset.hpp"
 #include "math/modular.hpp"
+#include <cmath>
 
 template <HashFamily H, std::size_t BPC = 4>
 class CountingBloomFilter {
+    using Self = CountingBloomFilter;
+
   public:
+    static Self optimal(std::size_t num_elements, std::size_t bits_per_element,
+                        KmerRepr repr) {
+        std::size_t size = num_elements * bits_per_element;
+        std::size_t nhashes = std::round(std::log(2) * bits_per_element);
+        return Self(size, nhashes, repr);
+    }
     CountingBloomFilter(std::size_t size, std::size_t nhashes, KmerRepr repr)
         : _size(size), hash_family(nhashes, repr), data(size) {}
     void insert(const Kmer &key) {
@@ -42,7 +51,15 @@ class CountingBloomFilter {
 
 template <RollingHashFamily H, std::size_t BPC = 4>
 class RollingCountingBloomFilter {
+    using Self = RollingCountingBloomFilter;
+
   public:
+    static Self optimal(std::size_t num_elements, std::size_t bits_per_element,
+                        KmerRepr repr) {
+        std::size_t size = num_elements * bits_per_element;
+        std::size_t nhashes = std::round(std::log(2) * bits_per_element);
+        return Self(size, nhashes, repr);
+    }
     RollingCountingBloomFilter(std::size_t size, std::size_t nhashes,
                                std::size_t k, KmerRepr repr)
         : _size(size), hash_family(nhashes, k, repr), data(size) {}
@@ -54,7 +71,7 @@ class RollingCountingBloomFilter {
             return;
         }
         for (auto &&h : hash_family.get_hashes()) {
-            data.inc(_size.reduce(h));
+            data.increment(_size.reduce(h));
         }
     }
     void erase_this() {
@@ -62,7 +79,9 @@ class RollingCountingBloomFilter {
             return;
         }
         for (auto &&h : hash_family.get_hashes()) {
-            data.dec(_size.reduce(h));
+            if (!data.is_stuck(h)) {
+                data.decrement(_size.reduce(h));
+            }
         }
     }
     bool contains_this() const {

@@ -1,14 +1,17 @@
 #ifndef FIRST_PHASE_HPP
 #define FIRST_PHASE_HPP
 
+#include "hash/hash_family.hpp"
 #include "helper/args.hpp"
 #include "io/fasta.hpp"
+#include "sketch/bloom_filter.hpp"
 
 namespace first_phase {
 
-template <class BF>
+template <RollingHashFamily H>
 int compute_superstring(std::size_t approx_set_size, io::FastaReader &in,
                         io::KmerWriter &out, const ComputeArgs &args) {
+    using BF = RollingBloomFilter<H>;
     auto K = args.k();
     auto kmer_repr =
             args.unidirectional() ? KmerRepr::FORWARD : KmerRepr::CANON;

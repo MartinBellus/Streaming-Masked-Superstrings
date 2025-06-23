@@ -37,12 +37,14 @@ class CountingBitset {
         std::size_t offset = get_offset(ind);
         return (data[cell] >> offset) & cell_mask;
     }
-    void inc(std::size_t ind) {
+    bool test(std::size_t ind) const { return get(ind) > 0; }
+    bool is_stuck(std::size_t ind) const { return get(ind) == max_count; }
+    void increment(std::size_t ind) {
         if (get(ind) < max_count) {
             set(ind, get(ind) + 1);
         }
     }
-    void dec(std::size_t ind) {
+    void decrement(std::size_t ind) {
         if (get(ind) > 0) {
             set(ind, get(ind) - 1);
         }
