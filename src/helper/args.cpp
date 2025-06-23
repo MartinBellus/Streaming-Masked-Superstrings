@@ -45,7 +45,8 @@ std::string get_tmp_file_name(const std::string &input) {
     std::string tmp_file_filename = std::format(
             "{}-{:05}.tmp", std::filesystem::path(input).stem().string(),
             time(NULL) % 100000);
-    return std::filesystem::temp_directory_path().string() + tmp_file_filename;
+    return std::filesystem::temp_directory_path().string() + "/" +
+           tmp_file_filename;
 }
 
 std::optional<ComputeArgs> ComputeArgs::from_cmdline(int argc,
