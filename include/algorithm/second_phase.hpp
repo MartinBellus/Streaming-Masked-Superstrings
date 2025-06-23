@@ -10,12 +10,14 @@
 namespace second_phase {
 
 template <RollingHashFamily H>
-int compute_superstring(std::size_t approx_set_size, io::FastaReader &in,
-                        io::KmerWriter &out, const ComputeArgs &arg) {
+int compute_superstring(std::size_t approx_set_size, const ComputeArgs &arg) {
     using CBF = RollingCountingBloomFilter<H>;
     auto K = arg.k();
+    io::FastaReader in(arg.first_phase_output());
+    io::KmerWriter out(arg.second_phase_output(), K, arg.splice());
     auto repr = arg.unidirectional() ? KmerRepr::FORWARD : KmerRepr::CANON;
-    CBF filter = CBF::optimal(approx_set_size, arg.bits_per_element(), repr);
+    CBF filter = CBF::optimal(approx_set_size, arg.bits_per_element(), arg.k(),
+                              repr);
 
     in.reset();
     while (in.next_sequence()) {
@@ -64,6 +66,7 @@ int compute_superstring(std::size_t approx_set_size, io::FastaReader &in,
         }
         out.flush();
     }
+    return 0;
 }
 
 } // namespace second_phase

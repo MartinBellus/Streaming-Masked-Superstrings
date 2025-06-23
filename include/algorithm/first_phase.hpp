@@ -9,13 +9,14 @@
 namespace first_phase {
 
 template <RollingHashFamily H>
-int compute_superstring(std::size_t approx_set_size, io::FastaReader &in,
-                        io::KmerWriter &out, const ComputeArgs &args) {
+int compute_superstring(std::size_t approx_set_size, const ComputeArgs &args) {
     using BF = RollingBloomFilter<H>;
     auto K = args.k();
+    bool splice = args.splice() && !args.second_phase();
+    io::FastaReader in(args.dataset());
+    io::KmerWriter out(args.first_phase_output(), K, splice);
     auto kmer_repr =
             args.unidirectional() ? KmerRepr::FORWARD : KmerRepr::CANON;
-    in.reset();
     out.write_header(args.fasta_header());
     BF filter =
             BF::optimal(approx_set_size, args.bits_per_element(), K, kmer_repr);

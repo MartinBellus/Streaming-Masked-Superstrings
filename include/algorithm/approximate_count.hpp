@@ -7,10 +7,10 @@
 #include "sketch/hyper_log_log.hpp"
 
 template <HashFamily H>
-std::size_t approximate_count(io::FastaReader &in, const ComputeArgs &arg) {
+std::size_t approximate_count(const ComputeArgs &arg) {
+    io::FastaReader in(arg.dataset());
     auto K = arg.k();
     auto kmer_repr = arg.unidirectional() ? KmerRepr::FORWARD : KmerRepr::CANON;
-    in.reset();
     HyperLogLog<H> hll(kmer_repr);
     Kmer kmer(K);
     char c;

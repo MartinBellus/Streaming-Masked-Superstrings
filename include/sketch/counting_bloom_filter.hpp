@@ -32,7 +32,9 @@ class CountingBloomFilter {
             return;
         }
         for (auto &&h : hash_family.hash(key)) {
-            data.decrement(_size.reduce(h));
+            if (!data.is_stuck(_size.reduce(h))) {
+                data.decrement(_size.reduce(h));
+            }
         }
     }
     bool contains(const Kmer &key) const {
@@ -55,10 +57,10 @@ class RollingCountingBloomFilter {
 
   public:
     static Self optimal(std::size_t num_elements, std::size_t bits_per_element,
-                        KmerRepr repr) {
+                        std::size_t k, KmerRepr repr) {
         std::size_t size = num_elements * bits_per_element;
         std::size_t nhashes = std::round(std::log(2) * bits_per_element);
-        return Self(size, nhashes, repr);
+        return Self(size, nhashes, k, repr);
     }
     RollingCountingBloomFilter(std::size_t size, std::size_t nhashes,
                                std::size_t k, KmerRepr repr)
@@ -79,7 +81,7 @@ class RollingCountingBloomFilter {
             return;
         }
         for (auto &&h : hash_family.get_hashes()) {
-            if (!data.is_stuck(h)) {
+            if (!data.is_stuck(_size.reduce(h))) {
                 data.decrement(_size.reduce(h));
             }
         }

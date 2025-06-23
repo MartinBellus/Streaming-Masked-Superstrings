@@ -1,6 +1,7 @@
 #include "algorithm/exact.hpp"
 #include "hash/poly_hash.hpp"
 #include "helper/hashed_kmer.hpp"
+#include "io/fasta.hpp"
 #include <unordered_set>
 
 using namespace exact;
@@ -15,10 +16,9 @@ std::ostream &operator<<(std::ostream &os, const Accuracy &acc) {
     return os;
 }
 
-Accuracy exact::compute_accuracy(io::FastaReader &output,
-                                 io::FastaReader &golden_output) {
-    output.reset();
-    golden_output.reset();
+Accuracy exact::compute_accuracy(const CompareArgs &args) {
+    io::FastaReader output(args.output());
+    io::FastaReader golden_output(args.golden());
     Accuracy result;
     char out_c, golden_c;
     if (!output.next_sequence() || !golden_output.next_sequence()) {
@@ -38,13 +38,13 @@ Accuracy exact::compute_accuracy(io::FastaReader &output,
     return result;
 }
 
-int exact::compute_superstring(io::FastaReader &in, io::KmerWriter &out,
-                               const ExactArgs &args) {
+int exact::compute_superstring(const ExactArgs &args) {
     using kmer_t = HashedKmer<poly_hash>;
     auto K = args.k();
+    io::FastaReader in(args.dataset());
+    io::KmerWriter out(args.output(), K, args.splice());
     auto kmer_repr =
             args.unidirectional() ? KmerRepr::FORWARD : KmerRepr::CANON;
-    in.reset();
     out.write_header(args.fasta_header());
     std::unordered_set<kmer_t, KmerHash> kmer_set;
     kmer_t kmer(K, 0, kmer_repr);

@@ -29,10 +29,10 @@ std::size_t exact_count(io::FastaReader &in, std::size_t K) {
 template <typename H>
 void hll_test(const std::string &path, std::size_t K) {
     io::FastaReader in(path);
-    std::string fake_args[] = {"-k", std::to_string(K), "", ""};
+    std::string fake_args[] = {"-k", std::to_string(K), path, ""};
     auto arg = ComputeArgs::from_cmdline(4, fake_args).value();
     auto start = std::chrono::high_resolution_clock::now();
-    std::int64_t count = approximate_count<H>(in, arg);
+    std::int64_t count = approximate_count<H>(arg);
     auto end = std::chrono::high_resolution_clock::now();
 
     in.reset();

@@ -2,7 +2,6 @@
 #define EXACT_HPP
 
 #include "helper/args.hpp"
-#include "io/fasta.hpp"
 
 namespace exact {
 
@@ -12,11 +11,9 @@ struct Accuracy {
     std::size_t length = 0;
 };
 
-Accuracy compute_accuracy(io::FastaReader &output,
-                          io::FastaReader &golden_output);
+Accuracy compute_accuracy(const CompareArgs &args);
 
-int compute_superstring(io::FastaReader &in, io::KmerWriter &out,
-                        const ExactArgs &args);
+int compute_superstring(const ExactArgs &args);
 } // namespace exact
 
 std::ostream &operator<<(std::ostream &os, const exact::Accuracy &acc);
