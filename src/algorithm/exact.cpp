@@ -7,12 +7,14 @@
 using namespace exact;
 
 std::ostream &operator<<(std::ostream &os, const Accuracy &acc) {
-    double missing_percent = (double)acc.missing_kmers / acc.length * 100;
-    double additional_percent = (double)acc.additional_kmers / acc.length * 100;
-    os << "Missing kmers: " << acc.missing_kmers << " / " << acc.length << " ("
-       << missing_percent << "%)\n"
-       << "Additional kmers: " << acc.additional_kmers << " / " << acc.length
-       << " (" << additional_percent << "%)\n";
+    double missing_percent =
+            (double)acc.missing_kmers / acc.present_kmers * 100;
+    double additional_percent =
+            (double)acc.additional_kmers / acc.present_kmers * 100;
+    os << std::format("Missing kmers: {} / {} ({}%)\n", acc.missing_kmers,
+                      acc.present_kmers, missing_percent)
+       << std::format("Additional kmers: {} / {} ({}%)\n", acc.additional_kmers,
+                      acc.present_kmers, additional_percent);
     return os;
 }
 
@@ -33,7 +35,9 @@ Accuracy exact::compute_accuracy(const CompareArgs &args) {
         } else if (!out && golden) {
             result.missing_kmers++;
         }
-        result.length++;
+        if (golden) {
+            result.present_kmers++;
+        }
     }
     return result;
 }

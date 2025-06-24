@@ -8,7 +8,7 @@ namespace exact {
 struct Accuracy {
     std::size_t missing_kmers = 0;
     std::size_t additional_kmers = 0;
-    std::size_t length = 0;
+    std::size_t present_kmers = 0;
 };
 
 Accuracy compute_accuracy(const CompareArgs &args);
