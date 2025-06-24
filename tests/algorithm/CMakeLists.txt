@@ -1,4 +1,4 @@
-add_executable(hll_test hll_test.cpp)
-add_dependencies(hll_test create_data_symlink)
+add_executable(approximate_count_test approximate_count.cpp)
+add_dependencies(approximate_count_test create_data_symlink)
 
-target_link_libraries(hll_test hash io)
+target_link_libraries(approximate_count_test hash io)

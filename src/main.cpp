@@ -31,12 +31,17 @@ int subcomand_compute(auto &&args) {
         return ComputeArgs::usage();
     }
     auto arg = _arg.value();
-    auto size = approximate_count<murmur_hash_family>(arg);
+    auto stats = approximate_count<murmur_hash_family>(arg);
 
-    int ret = first_phase::compute_superstring<poly_hash_family>(size, arg);
+    auto ret = first_phase::compute_superstring<poly_hash_family>(
+            stats.approximate_kmer_count, arg);
 
     if (arg.second_phase()) {
-        return second_phase::compute_superstring<poly_hash_family>(size, arg);
+        auto approximate_duplicates = stats.total_length -
+                                      stats.sequence_count * (arg.k() - 1) -
+                                      stats.approximate_kmer_count;
+        return second_phase::compute_superstring<poly_hash_family>(
+                approximate_duplicates, arg);
     }
 
     return ret;

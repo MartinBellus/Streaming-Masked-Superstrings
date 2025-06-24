@@ -58,9 +58,8 @@ class RollingCountingBloomFilter {
   public:
     static Self optimal(std::size_t num_elements, std::size_t bits_per_element,
                         std::size_t k, KmerRepr repr) {
-        auto bpe = (bits_per_element + BPC - 1) / BPC;
-        std::size_t size = num_elements * bpe;
-        std::size_t nhashes = std::round(std::log(2) * bpe);
+        std::size_t size = num_elements * bits_per_element;
+        std::size_t nhashes = std::round(std::log(2) * bits_per_element);
         return Self(size, nhashes, k, repr);
     }
     RollingCountingBloomFilter(std::size_t size, std::size_t nhashes,
