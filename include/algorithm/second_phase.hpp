@@ -52,11 +52,16 @@ int compute_superstring(std::size_t approx_set_size, const ComputeArgs &arg) {
     while (in.next_sequence()) {
         char c;
         std::uint64_t mask = 0;
+        std::size_t read = 0;
         while (in.next_nucleotide(c)) {
             filter.roll(c);
+            read++;
             mask = (mask << 1) | (bool)std::isupper(c);
             mask &= (1ULL << K) - 1;
             out.add_nucleotide(c);
+            if (read < K) {
+                continue;
+            }
             if (mask & (1ULL << (K - 1)) || filter.contains_this()) {
                 out.print_nucleotide(io::PRESENT);
             } else {
