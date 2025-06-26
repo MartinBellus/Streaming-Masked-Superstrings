@@ -52,7 +52,7 @@ std::string get_tmp_file_name(const std::string &input) {
 std::optional<ComputeArgs> ComputeArgs::from_cmdline(int argc,
                                                      std::string *argv) {
     const opt_set opts = {"-k", "-bpk", "-t"};
-    const opt_set flags = {"-u", "-s", "--no-splice", "-f"};
+    const opt_set flags = {"-u", "-s", "--no-splice", "-f", "-v"};
     std::unordered_map<std::string, std::string> opt_map = {{"-k", "31"},
                                                             {"-bpk", "10"}};
     auto begin = argv;
@@ -80,8 +80,8 @@ std::optional<ComputeArgs> ComputeArgs::from_cmdline(int argc,
                 std::stoul(opt_map.at("-k")), std::stoul(opt_map.at("-bpk")),
                 opt_map.contains("-u"),
                 opt_map.contains("-s") || opt_map.contains("--no-splice"),
-                opt_map.contains("-f"), std::move(input), std::move(first_out),
-                std::move(second_out));
+                opt_map.contains("-f"), opt_map.contains("-v"),
+                std::move(input), std::move(first_out), std::move(second_out));
     } catch (...) {
         return std::nullopt;
     }
@@ -97,6 +97,7 @@ int ComputeArgs::usage() {
     std::cerr << "  -u               treat kmer and its reverse complement as distinct" << std::endl;
     std::cerr << "  -s, --no-splice  do not splice the resulting masked superstring" << std::endl;
     std::cerr << "  -f               run only the first phase of the algorithm" << std::endl;
+    std::cerr << "  -v               output sizes of Bloom Filters" << std::endl;
     // clang-format on
     return 1;
 }

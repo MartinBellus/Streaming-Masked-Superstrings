@@ -13,6 +13,7 @@ class ComputeArgs {
     bool unidirectional() const { return _unidirectional; }
     bool splice() const { return !_no_splice; }
     bool second_phase() const { return !_skip_second_phase; }
+    bool verbose() const { return _verbose; }
     const std::string &dataset() const { return _dataset; }
     const std::string &first_phase_output() const { return _first_out; }
     const std::string &second_phase_output() const { return _second_out; }
@@ -21,17 +22,19 @@ class ComputeArgs {
 
   private:
     ComputeArgs(std::size_t k, std::size_t bpk, bool unidirectional,
-                bool splice, bool skip_second, std::string &&dataset,
-                std::string &&first_out, std::string &&second_out)
+                bool splice, bool skip_second, bool verbose,
+                std::string &&dataset, std::string &&first_out,
+                std::string &&second_out)
         : _k(k), _bpk(bpk), _unidirectional(unidirectional), _no_splice(splice),
-          _skip_second_phase(skip_second), _dataset(std::move(dataset)),
-          _first_out(std::move(first_out)), _second_out(std::move(second_out)) {
-    }
+          _skip_second_phase(skip_second), _verbose(verbose),
+          _dataset(std::move(dataset)), _first_out(std::move(first_out)),
+          _second_out(std::move(second_out)) {}
     std::size_t _k;
     std::size_t _bpk;
     bool _unidirectional;
     bool _no_splice;
     bool _skip_second_phase;
+    bool _verbose;
     std::string _dataset;
     std::string _first_out;
     std::string _second_out;

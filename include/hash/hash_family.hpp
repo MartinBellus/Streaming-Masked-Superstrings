@@ -20,6 +20,7 @@ class hash_family {
         buffer = std::make_unique<hash_t[]>(nhashes);
         std::copy(f.buffer.get(), f.buffer.get() + nhashes, buffer.get());
     }
+    std::size_t size() const { return nhashes; }
 
   protected:
     std::unique_ptr<hash_t[]> buffer;
@@ -46,6 +47,7 @@ class rolling_hash_family : public hash_family<T> {
     std::span<const hash_t> get_hashes() const {
         return std::span(buffer.get(), nhashes);
     }
+    std::size_t size() const { return nhashes; }
 };
 
 template <class T>

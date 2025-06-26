@@ -29,6 +29,13 @@ class BloomFilter {
         }
         return contains;
     }
+    std::size_t size() const { return _size.get_mod(); }
+    double error_rate(std::size_t num_elements) const {
+        std::size_t k = hash_family.size();
+        double p = std::pow(
+                1 - std::exp(-(double)k * num_elements / _size.get_mod()), k);
+        return p;
+    }
 
   private:
     DynamicBitset data;
@@ -71,6 +78,13 @@ class RollingBloomFilter {
             contains &= data.test(_size.reduce(h));
         }
         return contains;
+    }
+    std::size_t size() const { return _size.get_mod(); }
+    double error_rate(std::size_t num_elements) const {
+        std::size_t k = hash_family.size();
+        double p = std::pow(
+                1 - std::exp(-(double)k * num_elements / _size.get_mod()), k);
+        return p;
     }
 
   private:

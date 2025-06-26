@@ -6,6 +6,7 @@
 #include "io/fasta.hpp"
 #include "sketch/counting_bloom_filter.hpp"
 #include <cctype>
+#include <iostream>
 
 namespace second_phase {
 
@@ -18,6 +19,14 @@ int compute_superstring(std::size_t approx_set_size, const ComputeArgs &arg) {
     auto repr = arg.unidirectional() ? KmerRepr::FORWARD : KmerRepr::CANON;
     CBF filter = CBF::optimal(approx_set_size, arg.bits_per_element(), arg.k(),
                               repr);
+
+    if (arg.verbose()) {
+        std::size_t size_kb = filter.size() / 1024;
+        double error_rate = filter.error_rate(approx_set_size);
+        std::cerr << std::format("[Couting Bloom Filter with size {}kb, "
+                                 "expected error rate {:.4f}%]\n",
+                                 size_kb, error_rate * 100);
+    }
 
     in.reset();
     while (in.next_sequence()) {
