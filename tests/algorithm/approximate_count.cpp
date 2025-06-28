@@ -5,7 +5,6 @@
 #include "helper/hashed_kmer.hpp"
 #include "io/fasta.hpp"
 #include <chrono>
-#include <format>
 #include <iostream>
 #include <unordered_set>
 
@@ -77,13 +76,13 @@ void stats_test(const std::string &path, std::size_t K) {
                                                                        start)
                          .count()
               << "ms\n";
-    std::cout << std::format(
-            "Kmer count:\n\tApproximate:\t{}\n\tReal:\t\t{}\n\tError:\t\t{}%\n",
-            stats.approximate_kmer_count, count_real, count_error);
-    std::cout << std::format(
-            "Kmer duplicate "
-            "count:\n\tApproximate:\t{}\n\tReal:\t\t{}\n\tError:\t\t{}%\n",
-            approximate_duplicated, count_duplicated, duplicated_error);
+    std::cout << "Kmer count:\n\tApproximate:\t" << stats.approximate_kmer_count
+              << "\n\tReal:\t\t" << count_real << "\n\tError:\t\t"
+              << count_error << "%\n";
+    std::cout << "Kmer duplicate "
+              << "count:\n\tApproximate:\t" << approximate_duplicated
+              << "\n\tReal:\t\t" << count_duplicated << "\n\tError:\t\t"
+              << duplicated_error << "%\n";
 }
 
 int main(int argc, char *argv[]) {

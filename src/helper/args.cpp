@@ -1,7 +1,8 @@
 #include "helper/args.hpp"
 #include <filesystem>
-#include <format>
+#include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -42,9 +43,10 @@ bool next_opt(std::string *&begin, const std::string *end, std::string &opt,
 }
 
 std::string get_tmp_file_name(const std::string &input) {
-    std::string tmp_file_filename = std::format(
-            "{}-{:05}.tmp", std::filesystem::path(input).stem().string(),
-            time(NULL) % 100000);
+    std::stringstream ss;
+    ss << std::filesystem::path(input).stem().string() << "-" << std::setw(5)
+       << std::setfill('0') << (time(NULL) % 100000) << ".tmp";
+    std::string tmp_file_filename = ss.str();
     return std::filesystem::temp_directory_path().string() + "/" +
            tmp_file_filename;
 }
@@ -104,9 +106,11 @@ int ComputeArgs::usage() {
 
 std::string ComputeArgs::fasta_header() const {
     std::string mode = _unidirectional ? "unidirectional" : "bidirectional";
-    return std::format("approximate masked superstring dataset='{}' k={} "
-                       "bits-per-kmer={} mode={} splice={}",
-                       _dataset, _k, _bpk, mode, !_no_splice);
+    std::string splice = _no_splice ? "false" : "true";
+    std::stringstream ss;
+    ss << "approximate masked superstring dataset='" << _dataset << "' k=" << _k
+       << " bits-per-kmer=" << _bpk << " mode=" << mode << " splice=" << splice;
+    return ss.str();
 }
 
 std::optional<ExactArgs> ExactArgs::from_cmdline(int argc, std::string *argv) {
@@ -147,9 +151,11 @@ int ExactArgs::usage() {
 
 std::string ExactArgs::fasta_header() const {
     std::string mode = _unidirectional ? "unidirectional" : "bidirectional";
-    return std::format(
-            "exact masked superstring dataset='{}' k={} mode={} splice={}",
-            _dataset, _k, mode, !_no_splice);
+    std::string splice = _no_splice ? "false" : "true";
+    std::stringstream ss;
+    ss << "exact masked superstring dataset='" << _dataset << "' k=" << _k
+       << " mode=" << mode << " splice=" << splice;
+    return ss.str();
 }
 
 std::optional<CompareArgs> CompareArgs::from_cmdline(int argc,

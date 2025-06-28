@@ -11,10 +11,10 @@ std::ostream &operator<<(std::ostream &os, const Accuracy &acc) {
             (double)acc.missing_kmers / acc.present_kmers * 100;
     double additional_percent =
             (double)acc.additional_kmers / acc.present_kmers * 100;
-    os << std::format("Missing kmers: {} / {} ({}%)\n", acc.missing_kmers,
-                      acc.present_kmers, missing_percent)
-       << std::format("Additional kmers: {} / {} ({}%)\n", acc.additional_kmers,
-                      acc.present_kmers, additional_percent);
+    os << "Missing kmers: " << acc.missing_kmers << " / " << acc.present_kmers
+       << " (" << missing_percent << "%)\n"
+       << "Additional kmers: " << acc.additional_kmers << " / "
+       << acc.present_kmers << " (" << additional_percent << "%)\n";
     return os;
 }
 
