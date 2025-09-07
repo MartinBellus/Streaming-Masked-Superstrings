@@ -21,9 +21,9 @@ int compute_superstring(std::size_t approx_set_size, const ComputeArgs &arg) {
                               repr);
 
     if (arg.verbose()) {
-        std::size_t size_kb = filter.size() / 1024;
+        std::size_t size_kb = filter.size() / (1024 * 8);
         double error_rate = filter.error_rate(approx_set_size);
-        std::cerr << "[Couting Bloom Filter with size " << size_kb << "kb, "
+        std::cerr << "[Couting Bloom Filter with size " << size_kb << " KB, "
                   << "expected error rate " << error_rate * 100 << "%]\n";
     }
 

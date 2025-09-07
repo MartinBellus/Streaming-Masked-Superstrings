@@ -23,10 +23,10 @@ int compute_superstring(std::size_t approx_set_size, const ComputeArgs &args) {
             BF::optimal(approx_set_size, args.bits_per_element(), K, kmer_repr);
 
     if (args.verbose()) {
-        std::size_t size_kb = filter.size() / 1024;
+        std::size_t size_kb = filter.size() / (1024 * 8);
         double error_rate = filter.error_rate(approx_set_size);
         std::cerr << "[Bloom Filter with size " << size_kb
-                  << "kb, expected error rate " << error_rate * 100 << "%]\n";
+                  << " KB, expected error rate " << error_rate * 100 << "%]\n";
     }
 
     while (in.next_sequence()) {
