@@ -1,6 +1,4 @@
 #include "algorithm/exact.hpp"
-#include "hash/poly_hash.hpp"
-#include "helper/hashed_kmer.hpp"
 #include "io/fasta.hpp"
 #include <unordered_set>
 
@@ -43,15 +41,14 @@ Accuracy exact::compute_accuracy(const CompareArgs &args) {
 }
 
 int exact::compute_superstring(const ExactArgs &args) {
-    using kmer_t = HashedKmer<poly_hash>;
     auto K = args.k();
     io::FastaReader in(args.dataset());
     io::KmerWriter out(args.output(), K, args.splice());
     auto kmer_repr =
             args.unidirectional() ? KmerRepr::FORWARD : KmerRepr::CANON;
     out.write_header(args.fasta_header());
-    std::unordered_set<kmer_t, KmerHash> kmer_set;
-    kmer_t kmer(K, 0, kmer_repr);
+    std::unordered_set<Kmer::data_t> kmer_set;
+    Kmer kmer(K);
     char c;
     while (in.next_sequence()) {
         kmer.reset();
@@ -62,11 +59,12 @@ int exact::compute_superstring(const ExactArgs &args) {
         while (in.next_nucleotide(c)) {
             kmer.roll(c);
             out.add_nucleotide(c);
-            if (kmer_set.contains(kmer)) {
+            auto kmer_data = kmer.data(kmer_repr);
+            if (kmer_set.contains(kmer_data)) {
                 out.print_nucleotide(io::NOT_PRESENT);
             } else {
                 out.print_nucleotide(io::PRESENT);
-                kmer_set.insert(kmer);
+                kmer_set.insert(kmer_data);
             }
         }
         out.flush();

@@ -1,18 +1,16 @@
 #include "algorithm/approximate_count.hpp"
 #include "hash/murmur_hash.hpp"
-#include "hash/poly_hash.hpp"
 #include "helper/args.hpp"
-#include "helper/hashed_kmer.hpp"
+#include "helper/kmer.hpp"
 #include "io/fasta.hpp"
 #include <chrono>
 #include <iostream>
 #include <unordered_set>
 
 std::size_t exact_count(io::FastaReader &in, std::size_t K) {
-    using kmer_t = HashedKmer<poly_hash>;
     in.reset();
-    std::unordered_set<kmer_t, KmerHash> kmer_set;
-    kmer_t kmer(K, 0, KmerRepr::FORWARD);
+    std::unordered_set<Kmer::data_t> kmer_set;
+    Kmer kmer(K);
     char c;
     while (in.next_sequence()) {
         kmer.reset();
@@ -21,18 +19,17 @@ std::size_t exact_count(io::FastaReader &in, std::size_t K) {
         }
         while (in.next_nucleotide(c)) {
             kmer.roll(c);
-            kmer_set.insert(kmer);
+            kmer_set.insert(kmer.data(KmerRepr::FORWARD));
         }
     }
     return kmer_set.size();
 }
 
 std::size_t exact_duplicated_count(io::FastaReader &in, std::size_t K) {
-    using kmer_t = HashedKmer<poly_hash>;
     in.reset();
-    std::unordered_set<kmer_t, KmerHash> kmer_set;
-    std::unordered_set<kmer_t, KmerHash> duplicated_set;
-    kmer_t kmer(K, 0, KmerRepr::FORWARD);
+    std::unordered_set<Kmer::data_t> kmer_set;
+    std::unordered_set<Kmer::data_t> duplicated_set;
+    Kmer kmer(K);
     char c;
     while (in.next_sequence()) {
         kmer.reset();
@@ -41,8 +38,9 @@ std::size_t exact_duplicated_count(io::FastaReader &in, std::size_t K) {
         }
         while (in.next_nucleotide(c)) {
             kmer.roll(c);
-            if (!kmer_set.insert(kmer).second) {
-                duplicated_set.insert(kmer);
+            auto kmer_data = kmer.data(KmerRepr::FORWARD);
+            if (!kmer_set.insert(kmer_data).second) {
+                duplicated_set.insert(kmer_data);
             }
         }
     }
