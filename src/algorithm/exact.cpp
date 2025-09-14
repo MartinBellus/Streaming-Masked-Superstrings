@@ -17,26 +17,52 @@ std::ostream &operator<<(std::ostream &os, const Accuracy &acc) {
 }
 
 Accuracy exact::compute_accuracy(const CompareArgs &args) {
+    auto K = args.k();
     io::FastaReader output(args.output());
     io::FastaReader golden_output(args.golden());
+    auto kmer_repr =
+            args.unidirectional() ? KmerRepr::FORWARD : KmerRepr::CANON;
+    std::unordered_set<Kmer::data_t> kmer_set;
     Accuracy result;
-    char out_c, golden_c;
-    if (!output.next_sequence() || !golden_output.next_sequence()) {
-        return result;
-    }
-    while (output.next_nucleotide(out_c) &&
-           golden_output.next_nucleotide(golden_c)) {
-        bool out = std::isupper(out_c);
-        bool golden = std::isupper(golden_c);
-        if (out && !golden) {
-            result.additional_kmers++;
-        } else if (!out && golden) {
-            result.missing_kmers++;
-        }
-        if (golden) {
-            result.present_kmers++;
+
+    while (golden_output.next_sequence()) {
+        Kmer kmer(K);
+        char c;
+        std::size_t mask = 0;
+        while (golden_output.next_nucleotide(c)) {
+            kmer.roll(c);
+            mask = (mask << 1) | (bool)std::isupper(c);
+            mask &= (1ULL << K) - 1;
+            bool present = (mask & (1ULL << (K - 1))) != 0;
+            if (kmer.available() >= K && present) {
+                kmer_set.insert(kmer.data(kmer_repr));
+            }
         }
     }
+
+    result.present_kmers = kmer_set.size();
+
+    while (output.next_sequence()) {
+        Kmer kmer(K);
+        char c;
+        std::size_t mask = 0;
+        while (output.next_nucleotide(c)) {
+            kmer.roll(c);
+            mask = (mask << 1) | (bool)std::isupper(c);
+            mask &= (1ULL << K) - 1;
+            bool present = (mask & (1ULL << (K - 1))) != 0;
+            if (kmer.available() >= K && present) {
+                auto kmer_data = kmer.data(kmer_repr);
+                if (kmer_set.contains(kmer_data)) {
+                    kmer_set.erase(kmer_data);
+                } else {
+                    result.additional_kmers++;
+                }
+            }
+        }
+    }
+
+    result.missing_kmers = kmer_set.size();
     return result;
 }
 
