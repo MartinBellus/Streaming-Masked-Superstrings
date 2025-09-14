@@ -70,12 +70,14 @@ class CompareArgs {
     static std::optional<CompareArgs> from_cmdline(int argc, std::string *argv);
     static int usage();
 
+    std::size_t k() const { return _k; }
     const std::string &output() const { return _output; }
     const std::string &golden() const { return _golden; }
 
   private:
-    CompareArgs(std::string &&output, std::string &&golden)
-        : _output(std::move(output)), _golden(std::move(golden)) {}
+    CompareArgs(std::size_t k, std::string &&output, std::string &&golden)
+        : _k(k), _output(std::move(output)), _golden(std::move(golden)) {}
+    std::size_t _k;
     std::string _output;
     std::string _golden;
 };
