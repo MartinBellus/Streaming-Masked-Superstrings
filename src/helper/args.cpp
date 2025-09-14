@@ -8,6 +8,7 @@
 #include <unordered_set>
 
 using opt_set = std::unordered_set<std::string>;
+using opt_map = std::unordered_map<std::string, std::string>;
 
 bool next_opt(std::string *&begin, const std::string *end, std::string &opt,
               std::string &val, const opt_set &opts, const opt_set &flags) {
@@ -42,6 +43,23 @@ bool next_opt(std::string *&begin, const std::string *end, std::string &opt,
     return false;
 }
 
+std::optional<std::pair<std::string, std::string>>
+parse_args(int argc, std::string *argv, const opt_set &opts,
+           const opt_set &flags, opt_map &opt_vals) {
+    auto begin = argv;
+    auto end = argv + argc;
+    std::string opt, val;
+    while (next_opt(begin, end, opt, val, opts, flags)) {
+        opt_vals[opt] = val;
+    }
+    if (end - begin != 2) {
+        return std::nullopt;
+    }
+    auto first = *(begin++);
+    auto second = *(begin++);
+    return std::make_pair(first, second);
+}
+
 std::string get_tmp_file_name(const std::string &input) {
     std::stringstream ss;
     ss << std::filesystem::path(input).stem().string() << "-" << std::setw(5)
@@ -55,23 +73,17 @@ std::optional<ComputeArgs> ComputeArgs::from_cmdline(int argc,
                                                      std::string *argv) {
     const opt_set opts = {"-k", "-bpk", "-t"};
     const opt_set flags = {"-u", "-s", "--no-splice", "-f", "-v"};
-    std::unordered_map<std::string, std::string> opt_map = {{"-k", "31"},
-                                                            {"-bpk", "10"}};
-    auto begin = argv;
-    auto end = argv + argc;
-    std::string opt, val;
-    while (next_opt(begin, end, opt, val, opts, flags)) {
-        opt_map[opt] = val;
-    }
-    if (end - begin != 2) {
+    std::unordered_map<std::string, std::string> opt_vals = {{"-k", "31"},
+                                                             {"-bpk", "10"}};
+    auto args = parse_args(argc, argv, opts, flags, opt_vals);
+    if (!args.has_value()) {
         return std::nullopt;
     }
-    auto input = *(begin++);
-    auto first_out = *(begin++);
+    auto [input, first_out] = args.value();
     std::string second_out = "";
-    if (!opt_map.contains("-f")) {
-        if (opt_map.contains("-t")) {
-            second_out = opt_map.at("-t");
+    if (!opt_vals.contains("-f")) {
+        if (opt_vals.contains("-t")) {
+            second_out = opt_vals.at("-t");
         } else {
             second_out = get_tmp_file_name(input);
         }
@@ -79,10 +91,10 @@ std::optional<ComputeArgs> ComputeArgs::from_cmdline(int argc,
     }
     try {
         return ComputeArgs(
-                std::stoul(opt_map.at("-k")), std::stoul(opt_map.at("-bpk")),
-                opt_map.contains("-u"),
-                opt_map.contains("-s") || opt_map.contains("--no-splice"),
-                opt_map.contains("-f"), opt_map.contains("-v"),
+                std::stoul(opt_vals.at("-k")), std::stoul(opt_vals.at("-bpk")),
+                opt_vals.contains("-u"),
+                opt_vals.contains("-s") || opt_vals.contains("--no-splice"),
+                opt_vals.contains("-f"), opt_vals.contains("-v"),
                 std::move(input), std::move(first_out), std::move(second_out));
     } catch (...) {
         return std::nullopt;
@@ -116,22 +128,17 @@ std::string ComputeArgs::fasta_header() const {
 std::optional<ExactArgs> ExactArgs::from_cmdline(int argc, std::string *argv) {
     const opt_set opts = {"-k"};
     const opt_set flags = {"-u", "-s", "--no-splice"};
-    std::unordered_map<std::string, std::string> opt_map = {{"-k", "31"}};
-    auto begin = argv;
-    auto end = argv + argc;
-    std::string opt, val;
-    while (next_opt(begin, end, opt, val, opts, flags)) {
-        opt_map[opt] = val;
-    }
-    if (end - begin != 2) {
+    std::unordered_map<std::string, std::string> opt_vals = {{"-k", "31"}};
+
+    auto args = parse_args(argc, argv, opts, flags, opt_vals);
+    if (!args.has_value()) {
         return std::nullopt;
     }
-    auto input = *(begin++);
-    auto output = *(begin++);
+    auto [input, output] = args.value();
     try {
-        return ExactArgs(std::stoul(opt_map.at("-k")), opt_map.contains("-u"),
-                         opt_map.contains("-s") ||
-                                 opt_map.contains("--no-splice"),
+        return ExactArgs(std::stoul(opt_vals.at("-k")), opt_vals.contains("-u"),
+                         opt_vals.contains("-s") ||
+                                 opt_vals.contains("--no-splice"),
                          std::move(input), std::move(output));
     } catch (...) {
         return std::nullopt;
@@ -162,21 +169,17 @@ std::optional<CompareArgs> CompareArgs::from_cmdline(int argc,
                                                      std::string *argv) {
     const opt_set opts = {"-k"};
     const opt_set flags = {"-u"};
-    std::unordered_map<std::string, std::string> opt_map = {};
-    auto begin = argv;
-    auto end = argv + argc;
-    std::string opt, val;
-    while (next_opt(begin, end, opt, val, opts, flags)) {
-        opt_map[opt] = val;
-    }
-    if (end - begin != 2) {
+    std::unordered_map<std::string, std::string> opt_vals = {};
+
+    auto args = parse_args(argc, argv, opts, flags, opt_vals);
+    if (!args.has_value()) {
         return std::nullopt;
     }
-    auto input = *(begin++);
-    auto output = *(begin++);
+    auto [output, golden_output] = args.value();
     try {
-        return CompareArgs(std::stoul(opt_map.at("-k")), opt_map.contains("-u"),
-                           std::move(input), std::move(output));
+        return CompareArgs(std::stoul(opt_vals.at("-k")),
+                           opt_vals.contains("-u"), std::move(output),
+                           std::move(golden_output));
     } catch (...) {
         return std::nullopt;
     }
