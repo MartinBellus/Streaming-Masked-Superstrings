@@ -74,17 +74,16 @@ int exact::compute_superstring(const ExactArgs &args) {
             args.unidirectional() ? KmerRepr::FORWARD : KmerRepr::CANON;
     out.write_header(args.fasta_header());
     std::unordered_set<Kmer::data_t> kmer_set;
-    Kmer kmer(K);
-    char c;
+
     while (in.next_sequence()) {
-        kmer.reset();
-        for (std::size_t i = 0; i < K - 1 && in.next_nucleotide(c); i++) {
-            kmer.roll(c);
-            out.add_nucleotide(c);
-        }
+        Kmer kmer(K);
+        char c;
         while (in.next_nucleotide(c)) {
             kmer.roll(c);
             out.add_nucleotide(c);
+            if (kmer.available() < K) {
+                continue;
+            }
             auto kmer_data = kmer.data(kmer_repr);
             if (kmer_set.contains(kmer_data)) {
                 out.print_nucleotide(io::NOT_PRESENT);
