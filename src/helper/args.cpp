@@ -161,7 +161,7 @@ std::string ExactArgs::fasta_header() const {
 std::optional<CompareArgs> CompareArgs::from_cmdline(int argc,
                                                      std::string *argv) {
     const opt_set opts = {"-k"};
-    const opt_set flags = {};
+    const opt_set flags = {"-u"};
     std::unordered_map<std::string, std::string> opt_map = {};
     auto begin = argv;
     auto end = argv + argc;
@@ -175,8 +175,8 @@ std::optional<CompareArgs> CompareArgs::from_cmdline(int argc,
     auto input = *(begin++);
     auto output = *(begin++);
     try {
-        return CompareArgs(std::stoul(opt_map.at("-k")), std::move(input),
-                           std::move(output));
+        return CompareArgs(std::stoul(opt_map.at("-k")), opt_map.contains("-u"),
+                           std::move(input), std::move(output));
     } catch (...) {
         return std::nullopt;
     }
@@ -187,6 +187,7 @@ int CompareArgs::usage() {
     std::cerr << "Usage: streaming-masked-superstrings compare [options] <approximate-output> <exact-output>" << std::endl;
     std::cerr << "Options:" << std::endl;
     std::cerr << "  -k <int>         kmer size" << std::endl;
+    std::cerr << "  -u               treat kmer and its reverse complement as distinct" << std::endl;
     // clang-format on
     return 1;
 }

@@ -71,13 +71,17 @@ class CompareArgs {
     static int usage();
 
     std::size_t k() const { return _k; }
+    bool unidirectional() const { return _unidirectional; }
     const std::string &output() const { return _output; }
     const std::string &golden() const { return _golden; }
 
   private:
-    CompareArgs(std::size_t k, std::string &&output, std::string &&golden)
-        : _k(k), _output(std::move(output)), _golden(std::move(golden)) {}
+    CompareArgs(std::size_t k, bool unidirectional, std::string &&output,
+                std::string &&golden)
+        : _k(k), _unidirectional(unidirectional), _output(std::move(output)),
+          _golden(std::move(golden)) {}
     std::size_t _k;
+    bool _unidirectional;
     std::string _output;
     std::string _golden;
 };
