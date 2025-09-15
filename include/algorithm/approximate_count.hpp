@@ -19,20 +19,17 @@ Stats approximate_count(const ComputeArgs &arg) {
     auto K = arg.k();
     auto kmer_repr = arg.unidirectional() ? KmerRepr::FORWARD : KmerRepr::CANON;
     HyperLogLog<H> hll(kmer_repr);
-    Kmer kmer(K);
-    char c;
 
     while (in.next_sequence()) {
+        Kmer kmer(K);
+        char c;
         stats.sequence_count++;
-        kmer.reset();
-        for (std::size_t i = 0; i < K && in.next_nucleotide(c); i++) {
-            stats.total_length++;
-            kmer.roll(c);
-        }
         while (in.next_nucleotide(c)) {
             stats.total_length++;
-            hll.update(kmer);
             kmer.roll(c);
+            if (kmer.available() >= K) {
+                hll.update(kmer);
+            }
         }
     }
 
