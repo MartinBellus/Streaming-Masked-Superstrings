@@ -89,10 +89,15 @@ std::optional<ComputeArgs> ComputeArgs::from_cmdline(int argc,
         }
         swap(first_out, second_out);
     }
+
     try {
+        std::size_t k = std::stoul(opt_vals.at("-k"));
+        if (k > 32) {
+            return std::nullopt;
+        }
+
         return ComputeArgs(
-                std::stoul(opt_vals.at("-k")), std::stoul(opt_vals.at("-bpk")),
-                opt_vals.contains("-u"),
+                k, std::stoul(opt_vals.at("-bpk")), opt_vals.contains("-u"),
                 opt_vals.contains("-s") || opt_vals.contains("--no-splice"),
                 opt_vals.contains("-f"), opt_vals.contains("-v"),
                 std::move(input), std::move(first_out), std::move(second_out));
@@ -105,7 +110,7 @@ int ComputeArgs::usage() {
     // clang-format off
     std::cerr << "Usage: streaming-masked-superstrings compute [options] <input-fasta> <output-fasta>" << std::endl;
     std::cerr << "Options:" << std::endl;
-    std::cerr << "  -k <int>         kmer size (default = 31)" << std::endl;
+    std::cerr << "  -k <int>         kmer size [up to 32] (default = 31)" << std::endl;
     std::cerr << "  -bpk <int>       bits per kmer (default = 10)" << std::endl;
     std::cerr << "  -t <path>        path to the temporary file used in second phase" << std::endl;
     std::cerr << "  -u               treat kmer and its reverse complement as distinct" << std::endl;
@@ -135,8 +140,14 @@ std::optional<ExactArgs> ExactArgs::from_cmdline(int argc, std::string *argv) {
         return std::nullopt;
     }
     auto [input, output] = args.value();
+
     try {
-        return ExactArgs(std::stoul(opt_vals.at("-k")), opt_vals.contains("-u"),
+        std::size_t k = std::stoul(opt_vals.at("-k"));
+        if (k > 32) {
+            return std::nullopt;
+        }
+
+        return ExactArgs(k, opt_vals.contains("-u"),
                          opt_vals.contains("-s") ||
                                  opt_vals.contains("--no-splice"),
                          std::move(input), std::move(output));
@@ -149,7 +160,7 @@ int ExactArgs::usage() {
     // clang-format off
     std::cerr << "Usage: streaming-masked-superstrings exact [options] <input-fasta> <output-fasta>" << std::endl;
     std::cerr << "Options:" << std::endl;
-    std::cerr << "  -k <int>         kmer size (default = 31)" << std::endl;
+    std::cerr << "  -k <int>         kmer size [up to 32] (default = 31)" << std::endl;
     std::cerr << "  -u               treat kmer and its reverse complement as distinct" << std::endl;
     std::cerr << "  -s, --no-splice  do not splice the resulting masked superstring" << std::endl;
     // clang-format on
@@ -176,9 +187,14 @@ std::optional<CompareArgs> CompareArgs::from_cmdline(int argc,
         return std::nullopt;
     }
     auto [output, golden_output] = args.value();
+
     try {
-        return CompareArgs(std::stoul(opt_vals.at("-k")),
-                           opt_vals.contains("-u"), std::move(output),
+        std::size_t k = std::stoul(opt_vals.at("-k"));
+        if (k > 32) {
+            return std::nullopt;
+        }
+
+        return CompareArgs(k, opt_vals.contains("-u"), std::move(output),
                            std::move(golden_output));
     } catch (...) {
         return std::nullopt;
@@ -189,7 +205,7 @@ int CompareArgs::usage() {
     // clang-format off
     std::cerr << "Usage: streaming-masked-superstrings compare [options] <approximate-output> <exact-output>" << std::endl;
     std::cerr << "Options:" << std::endl;
-    std::cerr << "  -k <int>         kmer size" << std::endl;
+    std::cerr << "  -k <int>         kmer size [up to 32]" << std::endl;
     std::cerr << "  -u               treat kmer and its reverse complement as distinct" << std::endl;
     // clang-format on
     return 1;
